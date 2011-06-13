@@ -34,21 +34,21 @@ module Tasker
     @__parent_namespace = nil
   end
 
-  def execute( task_name )
-    namespace_name, task_name = split_task_from_namespace( task_name )
+  def execute( name )
+    namespace_name, task_name = split_task_from_namespace( name )
     
-    # Try and find the task directly via it's namespaced name
+    # Absolute search
     task = Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
   
-    # or it may refer to a task within the invoking namespace
+    # or relative search
     if !task && @__parent_namespace
-      namespace_name = @__parent_namespace.name + "::" + namespace_name
-      task = Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
+      full_namespace_name = fully_qualified_name( namespace_name )
+      task = Tasker::Namespace.find_task_in_namespace( full_namespace_name, task_name )
     end
     
     if !task
-      msg = "Unknown task '#{task_name}'"
-      msg << "or #{@__parent_namespace.name + "::" + task_name}" if @__parent_namespace
+      msg = "Unknown task '#{name}'"
+      msg << "or #{fully_qualified_name( name )}" if @__parent_namespace
       abort( msg )
     end
 
