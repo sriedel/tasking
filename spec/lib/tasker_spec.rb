@@ -3,7 +3,12 @@ require 'spec_helper'
 describe Tasker do
   include Tasker
 
+  before( :each ) do
+    Tasker::Namespace.class_eval { @namespaces.clear if @namespaces }
+  end
+
   describe "#task" do
+    
   end
 
   describe '#namespace' do
@@ -11,20 +16,43 @@ describe Tasker do
     let( :namespace_options ) { { :foo => :bar } }
     let( :namespace_block ) { Proc.new { } }
 
-    before( :each ) do
-      namespace( namespace_name, namespace_options, &namespace_block )
+    context "a top level namespace" do
+      before( :each ) do
+        namespace( namespace_name, namespace_options, &namespace_block )
+      end
+
+      it "should add the namespace to Namespace.all" do
+        expect { namespace( namespace_name, namespace_options, &namespace_block ) }.to change { Tasker::Namespace.all.size }.by(1)
+        Tasker::Namespace.all.last.name.should == namespace_name
+      end
     end
 
-    it "should add a namespace to Namespace.all" do
-      expect { namespace( namespace_name, namespace_options, &namespace_block ) }.to change { Tasker::Namespace.all.size }.by(1)
-    end
+    context "nested namespaces" do
+      shared_examples_for( :a_nested_namespace ) do
+        it "should have the outer namespace" do
+          Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace" }.should_not be_nil
+        end
+          
+        it "should have the inner namespace" do
+          Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace::inner_namespace" }.should_not be_nil
+        end
+      end
 
-    context "the newly created namespace" do
-      subject { Tasker::Namespace.all.last }
+      context "explicitly nested" do
+        before( :each ) do
+          namespace( "outer_namespace" ) { namespace "inner_namespace"  }
+        end
 
-      its( :name ) { should == namespace_name }
-      its( :options ) { should == namespace_options }
-      its( :block ) { should == namespace_block }
+        it_should_behave_like( :a_nested_namespace )
+      end
+
+      context "namespaced namespaces" do
+        before( :each ) do
+          namespace "outer_namespace::inner_namespace" 
+        end
+        
+        it_should_behave_like( :a_nested_namespace )
+      end
     end
   end
 end

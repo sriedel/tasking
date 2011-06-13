@@ -16,8 +16,12 @@ module Tasker
       @name = name
       @options = options
       @block = block
-
+      
       self.class.add_namespace( self )
+    end
+
+    def execute
+      @block.call if @block
     end
 
   end
