@@ -12,6 +12,56 @@ describe Tasker do
     let( :task_options ) { { :foo => :bar } }
     let( :task_block ) { Proc.new { } }
 
+    context "outside a namespace" do
+      it "should raise an exception" do
+        lambda { task( task_name ) }.should raise_error
+      end
+    end
+
+    context "within a namespace" do
+      before( :each ) do
+        namespace( "outer_namespace" ) { task task_name }
+      end
+
+      it "should add the task to the namespaces task list" do
+        registered_tasks = Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace" }.tasks
+        registered_tasks.size.should == 1
+        registered_tasks.first.name.should == task_name
+      end
+    end
+
+    context "within a nested namespace" do
+      before( :each ) do
+        namespace "outer_namespace" do
+          namespace( "inner_namespace" ) { task task_name }
+        end
+      end
+
+      it "should add the task to the inner namespaces task list"
+      it "should not add the task to the outer namespace task list"
+    end
+
+    context "within a namespaced namespace" do
+      before( :each ) do
+        namespace "outer_namespace::inner_namespace" do
+          task task_name 
+        end
+      end
+
+      it "should add the task to the inner namespaces task list"
+      it "should not add the task to the outer namespace task list"
+    end
+
+    context "with a namespaced name" do
+      before( :each ) do
+        task "outer_namespace::inner_namespace::#{task_name}"
+      end
+
+      it "should create the outer namespace" 
+      it "should add the task to the inner namespaces task list"
+      it "should not add the task to the outer namespace task list"
+    end
+
   end
 
   describe '#namespace' do

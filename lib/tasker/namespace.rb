@@ -24,5 +24,9 @@ module Tasker
       @block.call if @block
     end
 
+    def register_task( task )
+      @tasks << task
+    end
+
   end
 end

@@ -1,7 +1,10 @@
 #!/usr/bin/env ruby
 
 module Tasker
-  def task( name, options = {}, parent_namespace = nil, &block )
+  def task( name, options = {}, &block )
+    abort( "Task '#{name}' is not in a namespace" ) if @__parent_namespace == nil
+    task = Tasker::Task.new( name, options, &block )
+    @__parent_namespace.register_task( task )
   end
 
   def namespace( name, options = {}, &block ) 
