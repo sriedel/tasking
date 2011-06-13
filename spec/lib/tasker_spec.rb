@@ -33,6 +33,10 @@ describe Tasker do
     context "nested namespaces" do
       shared_examples_for( :a_nested_namespace ) do
         it "should have the outer namespace" do
+          Tasker::Namespace.all.map(&:name).should include( "second_namespace" )
+        end
+
+        it "should have the outer namespace" do
           Tasker::Namespace.all.map(&:name).should include( "outer_namespace" )
         end
           
@@ -45,7 +49,8 @@ describe Tasker do
         end
 
         it "should have only the defined namespaces" do
-          ( Tasker::Namespace.all.map(&:name) - [ "outer_namespace",
+          ( Tasker::Namespace.all.map(&:name) - [ "second_namespace",
+                                                  "outer_namespace",
                                                   "outer_namespace::middle_namespace",
                                                   "outer_namespace::middle_namespace::inner_namespace" ] ).should == []
         end
@@ -56,6 +61,8 @@ describe Tasker do
           namespace( "outer_namespace" ) do
             namespace( "middle_namespace" ) { namespace "inner_namespace"  }
           end
+
+          namespace "second_namespace"
         end
 
         it_should_behave_like( :a_nested_namespace )
@@ -64,6 +71,7 @@ describe Tasker do
       context "namespaced namespaces" do
         before( :each ) do
           namespace "outer_namespace::middle_namespace::inner_namespace" 
+          namespace "second_namespace"
         end
         
         it_should_behave_like( :a_nested_namespace )
@@ -74,6 +82,7 @@ describe Tasker do
           namespace "outer_namespace" do
             namespace "middle_namespace::inner_namespace" 
           end
+          namespace "second_namespace"
         end
         
         it_should_behave_like( :a_nested_namespace )
@@ -84,6 +93,7 @@ describe Tasker do
           namespace "outer_namespace::middle_namespace" do
             namespace "inner_namespace"
           end
+          namespace "second_namespace"
         end
         
         it_should_behave_like( :a_nested_namespace )
