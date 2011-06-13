@@ -30,6 +30,19 @@ describe Tasker do
       end
     end
 
+    shared_examples_for( :a_task_in_a_nested_namespace ) do
+      it "should add the task to the inner namespaces task list" do
+        registered_tasks = Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace::inner_namespace" }.tasks
+        registered_tasks.size.should == 1
+        registered_tasks.first.name.should == task_name
+      end
+
+      it "should not add the task to the outer namespace task list" do
+        registered_tasks = Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace" }.tasks
+        registered_tasks.should == []
+      end
+    end
+
     context "within a nested namespace" do
       before( :each ) do
         namespace "outer_namespace" do
@@ -37,8 +50,7 @@ describe Tasker do
         end
       end
 
-      it "should add the task to the inner namespaces task list"
-      it "should not add the task to the outer namespace task list"
+      it_should_behave_like( :a_task_in_a_nested_namespace )
     end
 
     context "within a namespaced namespace" do
@@ -47,9 +59,7 @@ describe Tasker do
           task task_name 
         end
       end
-
-      it "should add the task to the inner namespaces task list"
-      it "should not add the task to the outer namespace task list"
+      it_should_behave_like( :a_task_in_a_nested_namespace )
     end
 
     context "with a namespaced name" do
@@ -57,9 +67,11 @@ describe Tasker do
         task "outer_namespace::inner_namespace::#{task_name}"
       end
 
-      it "should create the outer namespace" 
-      it "should add the task to the inner namespaces task list"
-      it "should not add the task to the outer namespace task list"
+      it "should create the outer namespaces" do 
+        Tasker::Namespace.all.map(&:name).should include( "outer_namespace" )
+        Tasker::Namespace.all.map(&:name).should include( "outer_namespace::inner_namespace" )
+      end
+      it_should_behave_like( :a_task_in_a_nested_namespace )
     end
 
   end

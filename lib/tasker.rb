@@ -2,9 +2,19 @@
 
 module Tasker
   def task( name, options = {}, &block )
-    abort( "Task '#{name}' is not in a namespace" ) if @__parent_namespace == nil
-    task = Tasker::Task.new( name, options, &block )
-    @__parent_namespace.register_task( task )
+    namespace_segments = name.split( '::' )
+    task_name = namespace_segments.pop
+    namespace_name = namespace_segments.join( "::" )
+
+    if namespace_name == ""
+      abort( "Task '#{name}' is not in a namespace" ) if @__parent_namespace == nil
+      task = Tasker::Task.new( name, options, &block )
+      @__parent_namespace.register_task( task )
+    else
+      namespace( namespace_name ) do
+        task( task_name, options, &block )
+      end
+    end
   end
 
   def namespace( name, options = {}, &block ) 
