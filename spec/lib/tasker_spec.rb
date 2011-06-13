@@ -95,6 +95,10 @@ describe Tasker do
     let( :namespace_options ) { { :foo => :bar } }
     let( :namespace_block ) { Proc.new { } }
 
+    it "should abort on an empty namespace name" do
+      lambda { namespace( "" ) }.should raise_error
+    end
+
     context "reopening namespaces" do
       it "subsequent namespaces should be executed as well" do
         namespace( namespace_name ) { task "foo" }

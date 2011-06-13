@@ -21,6 +21,8 @@ module Tasker
   end
 
   def namespace( name, options = {}, &block ) 
+    abort( "Namespace with empty names are not allowed" ) if name.to_s == ""
+
     full_name = fully_qualified_name( name )
     parent_namespace_names, _ = split_task_from_namespace( full_name )
     build_namespace_hierarchy( parent_namespace_names )
