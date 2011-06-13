@@ -2,6 +2,8 @@
 
 module Tasker
   def task( name, options = {}, &block )
+    abort( "Tasks with empty names are not allowed" ) if name.to_s == ""
+
     full_name = fully_qualified_name( name )
     namespace_name, task_name = split_task_from_namespace( full_name )
 
@@ -21,7 +23,7 @@ module Tasker
   end
 
   def namespace( name, options = {}, &block ) 
-    abort( "Namespace with empty names are not allowed" ) if name.to_s == ""
+    abort( "Namespaces with empty names are not allowed" ) if name.to_s == ""
 
     full_name = fully_qualified_name( name )
     parent_namespace_names, _ = split_task_from_namespace( full_name )
