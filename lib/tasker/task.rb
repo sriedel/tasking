@@ -7,5 +7,9 @@ module Tasker
       @options = options
       @block = block
     end
+
+    def execute
+      @block.call if @block
+    end
   end
 end
