@@ -33,15 +33,21 @@ describe Tasker do
     context "nested namespaces" do
       shared_examples_for( :a_nested_namespace ) do
         it "should have the outer namespace" do
-          Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace" }.should_not be_nil
+          Tasker::Namespace.all.map(&:name).should include( "outer_namespace" )
         end
           
         it "should have the middle namespace" do
-          Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace:middle_namespace" }.should_not be_nil
+          Tasker::Namespace.all.map(&:name).should include( "outer_namespace::middle_namespace" )
         end
           
         it "should have the inner namespace" do
-          Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace::middle_namespace::inner_namespace" }.should_not be_nil
+          Tasker::Namespace.all.map(&:name).should include( "outer_namespace::middle_namespace::inner_namespace" )
+        end
+
+        it "should have only the defined namespaces" do
+          ( Tasker::Namespace.all.map(&:name) - [ "outer_namespace",
+                                                  "outer_namespace::middle_namespace",
+                                                  "outer_namespace::middle_namespace::inner_namespace" ] ).should == []
         end
       end
 

@@ -5,9 +5,12 @@ module Tasker
   end
 
   def namespace( name, options = {}, &block ) 
-    parent_namespace = instance_variable_get( :@__parent_namespace )
     namespace_segments = name.split( '::' )
-    ns_name = parent_namespace == nil ? nil : parent_namespace.name
+    ns_name = @__parent_namespace == nil ? nil : 
+              @__parent_namespace.last == nil ? nil :
+              @__parent_namespace.last.name
+    @__parent_namespace ||= []
+
 
     namespace_segments.each do |ns_segment|
       if ns_name
@@ -15,11 +18,10 @@ module Tasker
       else
         ns_name = ns_segment
       end
-      
-      @__parent_namespace = Tasker::Namespace.new( ns_name, options, &block )
-      @__parent_namespace.execute
+      @__parent_namespace << Tasker::Namespace.new( ns_name, options, &block )
     end
-    @__parent_namespace = nil
+    @__parent_namespace.last.execute
+    @__parent_namespace.pop
   end
 end
 
