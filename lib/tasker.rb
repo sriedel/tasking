@@ -23,11 +23,8 @@ module Tasker
     parent_namespace_names, _ = split_task_from_namespace( full_name )
     build_namespace_hierarchy( parent_namespace_names )
 
-    # FIXME: Reopening namespaces doesn't work with this, since the new 
-    #        &block doesn't get executed
-    @__parent_namespace = Tasker::Namespace.find_namespace( full_name ) ||
-                          Tasker::Namespace.new( full_name, options, &block )
-    @__parent_namespace.execute
+    @__parent_namespace = Tasker::Namespace.find_or_create( full_name, options, &block )
+    @__parent_namespace.execute( &block )
     @__parent_namespace = nil
   end
 
@@ -65,8 +62,7 @@ module Tasker
         ns_name = ns_segment
       end
       
-      @__parent_namespace = Tasker::Namespace.find_namespace( ns_name ) ||
-                            Tasker::Namespace.new( ns_name )
+      @__parent_namespace = Tasker::Namespace.find_or_create( ns_name ) 
     end
   end
 

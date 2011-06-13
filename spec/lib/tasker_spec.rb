@@ -81,6 +81,17 @@ describe Tasker do
     let( :namespace_options ) { { :foo => :bar } }
     let( :namespace_block ) { Proc.new { } }
 
+    context "reopening namespaces" do
+      it "subsequent namespaces should be executed as well" do
+        namespace( namespace_name ) { task "foo" }
+        namespace( namespace_name ) { task "bar" }
+
+        ns = Tasker::Namespace.find_namespace( namespace_name )
+        ns.tasks.map(&:name).should include( "foo" )
+        ns.tasks.map(&:name).should include( "bar" )
+      end
+    end
+
     context "a top level namespace" do
       it "should add the namespace to Namespace.all" do
         expect { namespace( namespace_name, namespace_options, &namespace_block ) }.to change { Tasker::Namespace.all.size }.by(1)

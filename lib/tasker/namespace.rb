@@ -20,6 +20,10 @@ module Tasker
       ns ? ns.tasks.detect { |t| t.name == task_name } : nil
     end
 
+    def self.find_or_create( name, options = {}, &block )
+      find_namespace( name ) || new( name, options, &block )
+    end
+
     def initialize( name, options = {}, &block )
       @tasks = []
       @name = name
@@ -29,8 +33,9 @@ module Tasker
       self.class.add_namespace( self )
     end
 
-    def execute
-      @block.call if @block
+    def execute( &alternate_block )
+      block = alternate_block || @block
+      block.call if block
     end
 
     def register_task( task )
