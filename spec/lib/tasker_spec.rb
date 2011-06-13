@@ -74,6 +74,20 @@ describe Tasker do
       it_should_behave_like( :a_task_in_a_nested_namespace )
     end
 
+    context "within a reopened namespace" do
+      let( :old_options ) { { :foo => :bar } }
+      let( :new_options ) { { :baz => :quux } }
+
+      it "should overwrite the existing task" do
+        namespace( "namespace" ) { task task_name, old_options }
+        namespace( "namespace" ) { task task_name, new_options }
+
+        ns = Tasker::Namespace.find_namespace( "namespace" )
+        ns.tasks.select { |t| t.name == task_name }.size.should == 1
+        ns.tasks.detect { |t| t.name == task_name }.options.should == new_options  
+      end
+    end
+
   end
 
   describe '#namespace' do

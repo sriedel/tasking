@@ -2,24 +2,26 @@
 
 module Tasker
   def task( name, options = {}, &block )
-    namespace_name, task_name = split_task_from_namespace( name )
+    full_name = fully_qualified_name( name )
+    namespace_name, task_name = split_task_from_namespace( full_name )
 
     if namespace_name == ""
-      abort( "Task '#{name}' is not in a namespace" ) unless @__parent_namespace
-
-      task = Tasker::Task.new( name, options, &block )
-      @__parent_namespace.register_task( task )
-
+      abort( "Task '#{name}' is not in a namespace" ) 
     else
-      namespace( namespace_name ) do
-        task( task_name, options, &block )
-      end
+      build_namespace_hierarchy( namespace_name )
+
+      parent_namespace = Tasker::Namespace.find_namespace( namespace_name )
+      existing_task = parent_namespace.find_task( task_name )
+
+      parent_namespace.unregister_task( existing_task ) if existing_task
+
+      task = Tasker::Task.new( task_name, options, &block )
+      parent_namespace.register_task( task )
     end
   end
 
   def namespace( name, options = {}, &block ) 
-    full_name = @__parent_namespace ? "#{@__parent_namespace.name}::#{name}" :
-                                      name
+    full_name = fully_qualified_name( name )
     parent_namespace_names, _ = split_task_from_namespace( full_name )
     build_namespace_hierarchy( parent_namespace_names )
 
@@ -52,6 +54,10 @@ module Tasker
   alias_method :run, :execute
 
   private
+  def fully_qualified_name( name )
+    @__parent_namespace ? "#{@__parent_namespace.name}::#{name}" : name
+  end
+
   def build_namespace_hierarchy( full_name ) 
     ns_name = nil
 
@@ -62,7 +68,7 @@ module Tasker
         ns_name = ns_segment
       end
       
-      @__parent_namespace = Tasker::Namespace.find_or_create( ns_name ) 
+      Tasker::Namespace.find_or_create( ns_name ) 
     end
   end
 

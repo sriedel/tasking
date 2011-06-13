@@ -40,5 +40,13 @@ module Tasker
       @tasks << task
     end
 
+    def unregister_task( task )
+      @tasks.delete( task )
+    end
+
+    def find_task( name )
+      @tasks.detect { |t| t.name == name }
+    end
+
   end
 end
