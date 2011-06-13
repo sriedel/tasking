@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+require 'lib/tasker'
+
+include Tasker
+task_name = ARGV[0]
+
+load 'Taskfile'
+
+execute task_name
+
+
