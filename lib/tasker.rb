@@ -26,8 +26,9 @@ module Tasker
       else
         ns_name = ns_segment
       end
-
-      @__parent_namespace = Tasker::Namespace.new( ns_name, options, &block )
+      
+      @__parent_namespace = Tasker::Namespace.find_namespace( ns_name ) ||
+                            Tasker::Namespace.new( ns_name, options, &block )
     end
 
     @__parent_namespace.execute
@@ -36,9 +37,11 @@ module Tasker
 
   def execute( task_name )
     namespace_name, task_name = split_task_from_namespace( task_name )
-
+    
+    # Try and find the task directly via it's namespaced name
     task = Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
-
+  
+    # or it may refer to a task within the invoking namespace
     if !task && @__parent_namespace
       namespace_name = @__parent_namespace.name + "::" + namespace_name
       task = Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
