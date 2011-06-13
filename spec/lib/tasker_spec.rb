@@ -91,19 +91,26 @@ describe Tasker do
     context "nested namespaces" do
       shared_examples_for( :a_nested_namespace ) do
         it "should have the outer namespace" do
-          Tasker::Namespace.all.map(&:name).should include( "second_namespace" )
+          ns = Tasker::Namespace.find_namespace( "second_namespace" )
+          ns.should be_a( Tasker::Namespace )
         end
 
         it "should have the outer namespace" do
-          Tasker::Namespace.all.map(&:name).should include( "outer_namespace" )
+          ns = Tasker::Namespace.find_namespace( "outer_namespace" )
+          ns.should be_a( Tasker::Namespace )
+          ns.options.should == {}
         end
           
         it "should have the middle namespace" do
-          Tasker::Namespace.all.map(&:name).should include( "outer_namespace::middle_namespace" )
+          ns = Tasker::Namespace.find_namespace( "outer_namespace::middle_namespace" )
+          ns.should be_a( Tasker::Namespace )
+          ns.options.should == {}
         end
           
         it "should have the inner namespace" do
-          Tasker::Namespace.all.map(&:name).should include( "outer_namespace::middle_namespace::inner_namespace" )
+          ns = Tasker::Namespace.find_namespace( "outer_namespace::middle_namespace::inner_namespace" )
+          ns.should be_a( Tasker::Namespace )
+          ns.options.should == namespace_options
         end
 
         it "should have only the defined namespaces" do
@@ -117,7 +124,9 @@ describe Tasker do
       context "explicitly nested" do
         before( :each ) do
           namespace( "outer_namespace" ) do
-            namespace( "middle_namespace" ) { namespace "inner_namespace"  }
+            namespace( "middle_namespace" ) do
+              namespace "inner_namespace", namespace_options
+            end
           end
 
           namespace "second_namespace"
@@ -128,7 +137,7 @@ describe Tasker do
 
       context "namespaced namespaces" do
         before( :each ) do
-          namespace "outer_namespace::middle_namespace::inner_namespace" 
+          namespace "outer_namespace::middle_namespace::inner_namespace", namespace_options
           namespace "second_namespace"
         end
         
@@ -149,7 +158,7 @@ describe Tasker do
       context "nested and namespaced namespaces" do
         before( :each ) do
           namespace "outer_namespace" do
-            namespace "middle_namespace::inner_namespace" 
+            namespace "middle_namespace::inner_namespace", namespace_options 
           end
           namespace "second_namespace"
         end
@@ -160,7 +169,7 @@ describe Tasker do
       context "namespaced and nested namespaces" do
         before( :each ) do
           namespace "outer_namespace::middle_namespace" do
-            namespace "inner_namespace"
+            namespace "inner_namespace", namespace_options
           end
           namespace "second_namespace"
         end

@@ -18,9 +18,12 @@ module Tasker
   end
 
   def namespace( name, options = {}, &block ) 
-    ns_name = @__parent_namespace == nil ? nil : @__parent_namespace.name
+    full_name = @__parent_namespace ? "#{@__parent_namespace.name}::#{name}" :
+                                      name
+    parent_namespace_names, namespace_name = split_task_from_namespace( full_name )
+    ns_name = nil
 
-    name.split( '::' ).each do |ns_segment|
+    parent_namespace_names.split( '::' ).each do |ns_segment|
       if ns_name
         ns_name += "::#{ns_segment}"
       else
@@ -28,9 +31,13 @@ module Tasker
       end
       
       @__parent_namespace = Tasker::Namespace.find_namespace( ns_name ) ||
-                            Tasker::Namespace.new( ns_name, options, &block )
+                            Tasker::Namespace.new( ns_name )
     end
 
+    # FIXME: Reopening namespaces doesn't work with this, since the new 
+    #        &block doesn't get executed
+    @__parent_namespace = Tasker::Namespace.find_namespace( full_name ) ||
+                          Tasker::Namespace.new( full_name, options, &block )
     @__parent_namespace.execute
     @__parent_namespace = nil
   end
