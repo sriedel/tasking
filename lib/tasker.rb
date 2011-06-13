@@ -20,19 +20,8 @@ module Tasker
   def namespace( name, options = {}, &block ) 
     full_name = @__parent_namespace ? "#{@__parent_namespace.name}::#{name}" :
                                       name
-    parent_namespace_names, namespace_name = split_task_from_namespace( full_name )
-    ns_name = nil
-
-    parent_namespace_names.split( '::' ).each do |ns_segment|
-      if ns_name
-        ns_name += "::#{ns_segment}"
-      else
-        ns_name = ns_segment
-      end
-      
-      @__parent_namespace = Tasker::Namespace.find_namespace( ns_name ) ||
-                            Tasker::Namespace.new( ns_name )
-    end
+    parent_namespace_names, _ = split_task_from_namespace( full_name )
+    build_namespace_hierarchy( parent_namespace_names )
 
     # FIXME: Reopening namespaces doesn't work with this, since the new 
     #        &block doesn't get executed
@@ -66,6 +55,21 @@ module Tasker
   alias_method :run, :execute
 
   private
+  def build_namespace_hierarchy( full_name ) 
+    ns_name = nil
+
+    full_name.split( '::' ).each do |ns_segment|
+      if ns_name
+        ns_name += "::#{ns_segment}"
+      else
+        ns_name = ns_segment
+      end
+      
+      @__parent_namespace = Tasker::Namespace.find_namespace( ns_name ) ||
+                            Tasker::Namespace.new( ns_name )
+    end
+  end
+
   def split_task_from_namespace( full_name )
     namespace_segments = full_name.split( '::' )
     task_name = namespace_segments.pop
