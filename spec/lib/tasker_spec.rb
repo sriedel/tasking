@@ -18,6 +18,10 @@ describe Tasker do
       end
     end
 
+    it "should disallow tasks with empty names" do
+      lambda { namespace( "foo" ) { task "" } }.should raise_error
+    end
+
     context "within a namespace" do
       before( :each ) do
         namespace( "outer_namespace" ) { task task_name }
