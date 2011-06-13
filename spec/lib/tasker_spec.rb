@@ -8,7 +8,10 @@ describe Tasker do
   end
 
   describe "#task" do
-    
+    let( :task_name ) { "dummy_task" }
+    let( :task_options ) { { :foo => :bar } }
+    let( :task_block ) { Proc.new { } }
+
   end
 
   describe '#namespace' do
@@ -33,14 +36,20 @@ describe Tasker do
           Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace" }.should_not be_nil
         end
           
+        it "should have the middle namespace" do
+          Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace:middle_namespace" }.should_not be_nil
+        end
+          
         it "should have the inner namespace" do
-          Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace::inner_namespace" }.should_not be_nil
+          Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace::middle_namespace::inner_namespace" }.should_not be_nil
         end
       end
 
       context "explicitly nested" do
         before( :each ) do
-          namespace( "outer_namespace" ) { namespace "inner_namespace"  }
+          namespace( "outer_namespace" ) do
+            namespace( "middle_namespace" ) { namespace "inner_namespace"  }
+          end
         end
 
         it_should_behave_like( :a_nested_namespace )
@@ -48,7 +57,27 @@ describe Tasker do
 
       context "namespaced namespaces" do
         before( :each ) do
-          namespace "outer_namespace::inner_namespace" 
+          namespace "outer_namespace::middle_namespace::inner_namespace" 
+        end
+        
+        it_should_behave_like( :a_nested_namespace )
+      end
+
+      context "nested and namespaced namespaces" do
+        before( :each ) do
+          namespace "outer_namespace" do
+            namespace "middle_namespace::inner_namespace" 
+          end
+        end
+        
+        it_should_behave_like( :a_nested_namespace )
+      end
+
+      context "namespaced and nested namespaces" do
+        before( :each ) do
+          namespace "outer_namespace::middle_namespace" do
+            namespace "inner_namespace"
+          end
         end
         
         it_should_behave_like( :a_nested_namespace )
