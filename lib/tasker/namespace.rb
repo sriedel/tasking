@@ -24,6 +24,15 @@ module Tasker
       find_namespace( name ) || new( name, options )
     end
 
+    def self.structure
+      structure = {}
+      all.each do |ns|
+        structure[ns.name] = ns.tasks.map(&:name)
+      end
+
+      structure
+    end
+
     def initialize( name, options = {} )
       @tasks = []
       @name = name
