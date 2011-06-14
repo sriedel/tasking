@@ -211,4 +211,72 @@ describe Tasker do
       end
     end
   end
+
+  describe '#execute' do
+    context "when given a fully qualified task name" do
+      before( :each ) do
+        namespace "foo" do
+          task "execute_relative" do
+            execute "bar::my_task"
+          end
+
+          task "execute_absolute" do
+            execute "foo::bar::my_task"
+          end
+
+          namespace "bar" do
+            task "my_task" do
+              @executed = "foo::bar::my_task"
+            end
+          end
+        end
+
+        namespace "bar" do
+          task "my_task" do
+            @executed = "bar::my_task"
+          end
+        end
+      end
+
+      it "should execute the absolute task if found" do
+        execute( "foo::execute_relative" )
+        @executed.should == "bar::my_task"
+
+        execute( "foo::execute_absolute" )
+        @executed.should == "foo::bar::my_task"
+      end
+    end
+
+    context "when given a relative task name" do
+      before( :each ) do
+        pending
+
+        namespace "foo" do
+          task "my_task" do
+            execute "bar::my_task"
+          end
+
+          namespace "bar" do
+            task "my_task" do
+              @executed = "foo::bar::my_task"
+            end
+          end
+        end
+
+        namespace "bar" do
+        end
+      end
+
+      it "should execute the relative task if no absolute task exists" do
+        execute( "foo::my_task" )
+        @executed.should == "foo::bar::my_task"
+      end
+    end
+
+    context "when given a non-existant task name" do
+      it "should abort with an error message" do
+        lambda { execute "foo::bar" }.should raise_error
+      end
+    end
+  end
 end
