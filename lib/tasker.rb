@@ -34,18 +34,23 @@ module Tasker
     @__parent_namespace = nil
   end
 
+  def before( task_name, *before_task_names )
+    task = find_task( task_name )
+    abort( "Unknown task '#{task_name}' in before filter" ) unless task
+
+    task.add_before_filters( *before_task_names )
+  end
+
+  def after( task_name, *after_task_names )
+    task = find_task( task_name )
+    abort( "Unknown task '#{task_name}' in after filter" ) unless task
+
+    task.add_after_filters( *after_task_names )
+  end
+
   def execute( name )
-    namespace_name, task_name = split_task_from_namespace( name )
-    
-    # Absolute search
-    task = Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
+    task = find_task( name )
   
-    # or relative search
-    if !task && @__parent_namespace
-      full_namespace_name = fully_qualified_name( namespace_name )
-      task = Tasker::Namespace.find_task_in_namespace( full_namespace_name, task_name )
-    end
-    
     if !task
       msg = "Unknown task '#{name}'"
       msg << "or #{fully_qualified_name( name )}" if @__parent_namespace
@@ -82,6 +87,12 @@ module Tasker
     namespace_name = namespace_segments.join( '::' )
 
     return namespace_name, task_name
+  end
+
+  def find_task( name )
+    namespace_name, task_name = split_task_from_namespace( name )
+    
+    Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
   end
 end
 

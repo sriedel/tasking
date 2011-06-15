@@ -7,6 +7,90 @@ describe Tasker do
     Tasker::Namespace.class_eval { @namespaces.clear if @namespaces }
   end
 
+  describe "#before" do
+    before( :each ) do
+      @executed = []
+
+      namespace "foo" do
+        task "before1" do
+          @executed << "before1"
+        end
+
+        task "before2" do
+          @executed << "before2"
+        end
+
+        task "target" do
+          @executed << "target"
+        end
+
+      end
+    end
+
+    it "should execute the before filters before the main target" do
+      before "foo::target", "foo::before1", "foo::before2"
+      execute "foo::target"
+      @executed.should == [ "before1", "before2", "target" ]
+    end
+
+    it "should accept the before filters as an array" do
+      before "foo::target", [ "foo::before1", "foo::before2" ]
+      execute "foo::target"
+      @executed.should == [ "before1", "before2", "target" ]
+    end
+
+    it "should raise an error if the main task is unknown" do
+      lambda { before "foo::unknown", "foo::before1" }.should raise_error
+    end
+
+    it "should raise an error if a filter is unknown on execution" do
+      before "foo::target", "foo::unknown"
+      lambda { execute "foo::target" }.should raise_error
+    end
+  end
+
+  describe "#after" do
+    before( :each ) do
+      @executed = []
+
+      namespace "foo" do
+        task "after1" do
+          @executed << "after1"
+        end
+
+        task "after2" do
+          @executed << "after2"
+        end
+
+        task "target" do
+          @executed << "target"
+        end
+
+      end
+    end
+
+    it "should execute the after filters after the main target" do
+      after "foo::target", "foo::after1", "foo::after2"
+      execute "foo::target"
+      @executed.should == [ "target", "after1", "after2" ]
+    end
+
+    it "should accept the after filters as an array" do
+      after "foo::target", [ "foo::after1", "foo::after2" ]
+      execute "foo::target"
+      @executed.should == [ "target", "after1", "after2" ]
+    end
+
+    it "should raise an error if the main task is unknown" do
+      lambda { after "foo::unknown", "foo::after1" }.should raise_error
+    end
+
+    it "should raise an error if a filter is unknown on execution" do
+      after "foo::target", "foo::unknown"
+      lambda { execute "foo::target" }.should raise_error
+    end
+  end
+
   describe "#task" do
     let( :task_name ) { "dummy_task" }
     let( :task_options ) { { :foo => :bar } }
