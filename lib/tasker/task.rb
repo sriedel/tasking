@@ -19,24 +19,20 @@ module Tasker
     end
 
     def execute
-      before_filters.each do |bf|
-        ns_segments = bf.split( '::' )
-        task_name = ns_segments.pop
-        namespace_name = ns_segments.join( '::' )
-        before_task = Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
-        abort( "Unknown before task '#{bf}' for task '#{@name}'" ) unless before_task
-        before_task.execute
-      end
-
+      execute_task_chain( before_filters, "Unknown before task '%s' for task '#{@name}'" )
       @block.call if @block
+      execute_task_chain( after_filters, "Unknown after task '%s' for task '#{@name}'" )
+    end
 
-      after_filters.each do |af|
-        ns_segments = af.split( '::' )
+    private
+    def execute_task_chain( tasks, fail_message )
+      tasks.each do |t|
+        ns_segments = t.split( '::' )
         task_name = ns_segments.pop
         namespace_name = ns_segments.join( '::' )
-        after_task = Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
-        abort( "Unknown before task '#{af}' for task '#{@name}'" ) unless after_task
-        after_task.execute
+        task = Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
+        abort( fail_message % t ) unless task
+        task.execute
       end
     end
   end
