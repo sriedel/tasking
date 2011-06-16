@@ -48,7 +48,7 @@ module Tasker
     task.add_after_filters( *after_task_names )
   end
 
-  def execute( name )
+  def execute( name, options = {} )
     task = find_task( name )
   
     if !task

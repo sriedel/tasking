@@ -20,6 +20,7 @@ module Tasker
 
     def execute
       execute_task_chain( before_filters, "Unknown before task '%s' for task '#{@name}'" )
+      STDERR.puts @block.inspect
       @block.call if @block
       execute_task_chain( after_filters, "Unknown after task '%s' for task '#{@name}'" )
     end

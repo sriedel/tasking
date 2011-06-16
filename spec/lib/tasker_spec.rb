@@ -91,6 +91,46 @@ describe Tasker do
     end
   end
 
+  describe "#execute" do
+    context "the task options on execution" do
+      before( :each ) do
+        namespace( "outer", :outer_option_not_overridden => :outer,
+                            :outer_option_overridden_by_inner => :outer,
+                            :outer_option_overridden_by_task  => :outer,
+                            :outer_option_overridden_by_execute => :outer ) do
+          namespace( "inner", :outer_option_overridden_by_inner => :inner,
+                              :inner_option_not_overridden      => :inner,
+                              :inner_option_overridden_by_task  => :inner,
+                              :inner_option_overridden_by_execute => :inner ) do
+            task( "my_task", :outer_option_overridden_by_task => :task,
+                             :inner_option_overridden_by_task => :task,
+                             :task_option_not_overridden      => :task,
+                             :task_option_overridden_by_execute => :task ) do |options|
+              @set_options = options
+            end
+          end
+        end
+        execute( "outer::inner::my_task", :outer_option_overridden_by_execute => :exe,
+                                          :inner_option_overridden_by_execute => :exe,
+                                          :task_option_overridden_by_execute => :exe,
+                                          :execute_option_not_overridden => :exe )
+      end
+
+      it "should get all options with the proper override sequence" do
+        @set_options.should == hash_including( :outer_option_not_overridden => :outer,
+                                               :outer_option_overridden_by_inner => :inner,
+                                               :outer_option_overridden_by_task => :task,
+                                               :outer_option_overridden_by_execute => :exe,
+                                               :inner_option_not_overridden => :inner,
+                                               :inner_option_overridden_by_task => :task,
+                                               :inner_option_overridden_by_execute => :exe,
+                                               :task_option_not_overridden => :task,
+                                               :task_option_overridden_by_execute => :exe,
+                                               :execute_option_not_overridden => :exe )
+      end
+    end
+  end
+
   describe "#task" do
     let( :task_name ) { "dummy_task" }
     let( :task_options ) { { :foo => :bar } }
