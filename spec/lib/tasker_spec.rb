@@ -117,16 +117,16 @@ describe Tasker do
       end
 
       it "should get all options with the proper override sequence" do
-        @set_options.should == hash_including( :outer_option_not_overridden => :outer,
-                                               :outer_option_overridden_by_inner => :inner,
-                                               :outer_option_overridden_by_task => :task,
-                                               :outer_option_overridden_by_execute => :exe,
-                                               :inner_option_not_overridden => :inner,
-                                               :inner_option_overridden_by_task => :task,
-                                               :inner_option_overridden_by_execute => :exe,
-                                               :task_option_not_overridden => :task,
-                                               :task_option_overridden_by_execute => :exe,
-                                               :execute_option_not_overridden => :exe )
+        @set_options.should == { :outer_option_not_overridden       => :outer,
+                                :outer_option_overridden_by_inner   => :inner,
+                                :outer_option_overridden_by_task    => :task,
+                                :outer_option_overridden_by_execute => :exe,
+                                :inner_option_not_overridden        => :inner,
+                                :inner_option_overridden_by_task    => :task,
+                                :inner_option_overridden_by_execute => :exe,
+                                :task_option_not_overridden         => :task,
+                                :task_option_overridden_by_execute  => :exe,
+                                :execute_option_not_overridden      => :exe }
       end
     end
   end

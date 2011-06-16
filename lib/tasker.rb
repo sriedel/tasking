@@ -56,7 +56,7 @@ module Tasker
       msg << "or #{fully_qualified_name( name )}" if @__parent_namespace
       abort( msg )
     end
-    namespace_hierarchy_options = gather_options_for( task.name )
+    namespace_hierarchy_options = gather_options_for( name, task )
     namespace_hierarchy_options.merge!( options )
     task.execute( namespace_hierarchy_options )
   end
@@ -64,8 +64,25 @@ module Tasker
   alias_method :run, :execute
 
   private
-  def gather_options_for( full_task_name )
-    {}
+  def gather_options_for( full_task_name, task )
+    ns_segments = full_task_name.split( '::' )
+    task_name = ns_segments.pop
+
+    final_options = {}
+
+    current_ns_hierarchy_level = nil
+    ns_segments.each do |segment|
+      if current_ns_hierarchy_level == nil
+        current_ns_hierarchy_level = segment
+      else
+        current_ns_hierarchy_level << "::#{segment}"
+      end 
+
+      namespace = Tasker::Namespace.find_namespace( current_ns_hierarchy_level )
+      final_options.merge!( namespace.options )
+    end
+
+    final_options.merge!( task.options )
   end
 
   def fully_qualified_name( name )
