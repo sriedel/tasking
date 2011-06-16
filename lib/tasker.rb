@@ -56,13 +56,18 @@ module Tasker
       msg << "or #{fully_qualified_name( name )}" if @__parent_namespace
       abort( msg )
     end
-
-    task.execute
+    namespace_hierarchy_options = gather_options_for( task.name )
+    namespace_hierarchy_options.merge!( options )
+    task.execute( namespace_hierarchy_options )
   end
   alias_method :invoke, :execute
   alias_method :run, :execute
 
   private
+  def gather_options_for( full_task_name )
+    {}
+  end
+
   def fully_qualified_name( name )
     @__parent_namespace ? "#{@__parent_namespace.name}::#{name}" : name
   end
