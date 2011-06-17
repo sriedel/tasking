@@ -1,0 +1,3 @@
+- Relative namespace/task lookup is still flakey
+- options command for namespaces
+- merging of options when namespaces are merged
