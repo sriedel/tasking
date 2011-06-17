@@ -202,6 +202,21 @@ describe Tasker do
       it_should_behave_like( :a_task_in_a_nested_namespace )
     end
 
+    context "within a namespaced name and a namespace" do
+      before( :each ) do
+        namespace "outer_namespace" do
+          task "inner_namespace::#{task_name}"
+        end
+      end
+
+      it "should create the outer namespaces" do 
+        Tasker::Namespace.all.map(&:name).should include( "outer_namespace" )
+        Tasker::Namespace.all.map(&:name).should include( "outer_namespace::inner_namespace" )
+      end
+
+      it_should_behave_like( :a_task_in_a_nested_namespace )
+    end
+
     context "within a reopened namespace" do
       let( :old_options ) { { :foo => :bar } }
       let( :new_options ) { { :baz => :quux } }
