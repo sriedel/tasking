@@ -131,6 +131,35 @@ describe Tasker do
     end
   end
 
+  describe "#options" do
+    context "within a namespace" do
+      before( :each ) do
+        namespace "outer" do
+          options :foo => :bar
+        end
+      end
+
+      it "should get merged with the existing options" do
+        ns = Tasker::Namespace.find_namespace( "outer" )
+        ns.options.should == { :foo => :bar }
+      end
+    end
+
+    context "within a nested namespace" do
+      it "should get merged with the options of the inner namespace"
+      it "should not change the options of the outer namespace"
+    end
+
+    context "within a namespaced namespace" do
+      it "should get merged with the options of the inner namespace"
+      it "should not change the options of the outer namespace"
+    end
+
+    context "within a reopened namespace" do
+      it "should get merged with the existing options"
+    end
+  end
+
   describe "#task" do
     let( :task_name ) { "dummy_task" }
     let( :task_options ) { { :foo => :bar } }
