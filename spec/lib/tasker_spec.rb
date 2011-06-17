@@ -145,18 +145,59 @@ describe Tasker do
       end
     end
 
-    context "within a nested namespace" do
-      it "should get merged with the options of the inner namespace"
-      it "should not change the options of the outer namespace"
+    context "within a nested namespace" do 
+      before( :each ) do
+        namespace "outer" do
+          namespace "inner" do
+            options :foo => :bar
+          end
+        end
+      end
+
+      it "should get merged with the options of the inner namespace" do
+        ns = Tasker::Namespace.find_namespace( "outer::inner" )
+        ns.options.should == { :foo => :bar }
+      end
+
+      it "should not change the options of the outer namespace" do
+        ns = Tasker::Namespace.find_namespace( "outer" )
+        ns.options.should == {}
+      end
     end
 
     context "within a namespaced namespace" do
-      it "should get merged with the options of the inner namespace"
-      it "should not change the options of the outer namespace"
+      before( :each ) do
+        namespace "outer::inner" do
+          options :foo => :bar
+        end
+      end
+
+      it "should get merged with the options of the inner namespace" do
+        ns = Tasker::Namespace.find_namespace( "outer::inner" )
+        ns.options.should == { :foo => :bar }
+      end
+
+      it "should not change the options of the outer namespace" do
+        ns = Tasker::Namespace.find_namespace( "outer" )
+        ns.options.should == {}
+      end
     end
 
     context "within a reopened namespace" do
-      it "should get merged with the existing options"
+      before( :each ) do
+        namespace "outer" do
+          options :foo => :bar, :baz => :quux
+        end
+
+        namespace "outer" do
+          options :foo => :baz, :bla => :blubb
+        end
+      end
+
+      it "should get merged with the existing options" do
+        ns = Tasker::Namespace.find_namespace( "outer" )
+        ns.options.should == { :foo => :baz, :baz => :quux, :bla => :blubb }
+      end
     end
   end
 

@@ -34,6 +34,10 @@ module Tasker
     @__parent_namespace = nil
   end
 
+  def options( options ) 
+    @__parent_namespace.merge_options( options )
+  end
+
   def before( task_name, *before_task_names )
     task = Tasker::Namespace.find_task( task_name )
     abort( "Unknown task '#{task_name}' in before filter" ) unless task

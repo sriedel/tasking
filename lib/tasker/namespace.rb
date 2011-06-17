@@ -45,6 +45,10 @@ module Tasker
       block.call if block
     end
 
+    def merge_options( options )
+      @options.merge!( options )
+    end
+
     def register_task( task )
       @tasks << task
     end
