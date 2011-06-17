@@ -236,6 +236,14 @@ describe Tasker do
         ns.tasks.map(&:name).should include( "foo" )
         ns.tasks.map(&:name).should include( "bar" )
       end
+
+      it "should merge the options of the two namespaces" do
+        namespace( namespace_name, :foo => :bar, :baz => :quux )
+        namespace( namespace_name, :foo => :baz, :bla => :blubb )
+
+        ns = Tasker::Namespace.find_namespace( namespace_name )
+        ns.options.should == { :foo =>:baz, :baz => :quux, :bla => :blubb }
+      end
     end
 
     context "a top level namespace" do

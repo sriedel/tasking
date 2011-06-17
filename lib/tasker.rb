@@ -30,7 +30,7 @@ module Tasker
     build_namespace_hierarchy( parent_namespace_names )
 
     @__parent_namespace = Tasker::Namespace.find_or_create( full_name, options )
-    @__parent_namespace.execute( &block )
+    @__parent_namespace.execute( options, &block )
     @__parent_namespace = nil
   end
 

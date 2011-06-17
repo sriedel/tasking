@@ -40,7 +40,8 @@ module Tasker
       self.class.add_namespace( self )
     end
 
-    def execute( &block )
+    def execute( options = {}, &block )
+      @options.merge! options
       block.call if block
     end
 
