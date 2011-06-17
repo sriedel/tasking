@@ -20,6 +20,14 @@ module Tasker
       ns ? ns.tasks.detect { |t| t.name == task_name } : nil
     end
 
+    def self.find_task( full_name )
+      namespace_segments = full_name.split( '::' )
+      task_name = namespace_segments.pop
+      namespace_name = namespace_segments.join( '::' )
+
+      Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
+    end
+
     def self.find_or_create( name, options = {} )
       find_namespace( name ) || new( name, options )
     end

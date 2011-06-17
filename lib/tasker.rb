@@ -35,21 +35,21 @@ module Tasker
   end
 
   def before( task_name, *before_task_names )
-    task = find_task( task_name )
+    task = Tasker::Namespace.find_task( task_name )
     abort( "Unknown task '#{task_name}' in before filter" ) unless task
 
     task.add_before_filters( *before_task_names )
   end
 
   def after( task_name, *after_task_names )
-    task = find_task( task_name )
+    task = Tasker::Namespace.find_task( task_name )
     abort( "Unknown task '#{task_name}' in after filter" ) unless task
 
     task.add_after_filters( *after_task_names )
   end
 
   def execute( name, options = {} )
-    task = find_task( name )
+    task = Tasker::Namespace.find_task( name )
   
     if !task
       msg = "Unknown task '#{name}'"
@@ -64,21 +64,27 @@ module Tasker
   alias_method :run, :execute
 
   private
-  def gather_options_for( full_task_name, task )
-    ns_segments = full_task_name.split( '::' )
-    task_name = ns_segments.pop
-
-    final_options = {}
+  def walk_namespace_tree_to( namespace_name, type = :namespace, &block )
+    ns_segments = namespace_name.split( '::' )
+    ns_segments.pop if type != :namespace
 
     current_ns_hierarchy_level = nil
     ns_segments.each do |segment|
       if current_ns_hierarchy_level == nil
         current_ns_hierarchy_level = segment
       else
-        current_ns_hierarchy_level << "::#{segment}"
+        current_ns_hierarchy_level += "::#{segment}"
       end 
 
-      namespace = Tasker::Namespace.find_namespace( current_ns_hierarchy_level )
+      block.call( current_ns_hierarchy_level )
+    end
+  end
+
+  def gather_options_for( full_task_name, task )
+    final_options = {}
+
+    walk_namespace_tree_to( full_task_name, :task ) do |ns_name|
+      namespace = Tasker::Namespace.find_namespace( ns_name )
       final_options.merge!( namespace.options )
     end
 
@@ -90,15 +96,7 @@ module Tasker
   end
 
   def build_namespace_hierarchy( full_name ) 
-    ns_name = nil
-
-    full_name.split( '::' ).each do |ns_segment|
-      if ns_name
-        ns_name += "::#{ns_segment}"
-      else
-        ns_name = ns_segment
-      end
-      
+    walk_namespace_tree_to( full_name ) do |ns_name|
       Tasker::Namespace.find_or_create( ns_name ) 
     end
   end
@@ -109,12 +107,6 @@ module Tasker
     namespace_name = namespace_segments.join( '::' )
 
     return namespace_name, task_name
-  end
-
-  def find_task( name )
-    namespace_name, task_name = split_task_from_namespace( name )
-    
-    Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
   end
 end
 
