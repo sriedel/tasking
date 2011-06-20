@@ -141,27 +141,28 @@ describe Tasker do
       end
 
       it "should get all options with the proper override sequence" do
-        @set_options.should == { :outer_not_overridden       => :outer,
-                                :outer_overridden_by_outer_options => :outer_options,
-                                :outer_overridden_by_inner   => :inner,
-                                :outer_overridden_by_inner_options => :inner_options,
-                                :outer_overridden_by_task    => :task,
-                                :outer_overridden_by_execute => :exe,
-                                :outer_options_not_overridden => :outer_options,
-                                :outer_options_overridden_by_inner => :inner,
-                                :outer_options_overridden_by_inner_options => :inner_options,
-                                :outer_options_overridden_by_task => :task,
-                                :outer_options_overridden_by_execute => :exe,
-                                :inner_not_overridden        => :inner,
-                                :inner_overridden_by_inner_options => :inner_options,
-                                :inner_overridden_by_task    => :task,
-                                :inner_overridden_by_execute => :exe,
-                                :inner_options_not_overridden => :inner_options,
-                                :inner_options_overridden_by_task => :task,
-                                :inner_options_overridden_by_execute => :exe,
-                                :task_not_overridden         => :task,
-                                :task_overridden_by_execute  => :exe,
-                                :execute_not_overridden      => :exe }
+        @set_options.should == { 
+          :outer_not_overridden                      => :outer,
+          :outer_overridden_by_outer_options         => :outer_options,
+          :outer_overridden_by_inner                 => :inner,
+          :outer_overridden_by_inner_options         => :inner_options,
+          :outer_overridden_by_task                  => :task,
+          :outer_overridden_by_execute               => :exe,
+          :outer_options_not_overridden              => :outer_options,
+          :outer_options_overridden_by_inner         => :inner,
+          :outer_options_overridden_by_inner_options => :inner_options,
+          :outer_options_overridden_by_task          => :task,
+          :outer_options_overridden_by_execute       => :exe,
+          :inner_not_overridden                      => :inner,
+          :inner_overridden_by_inner_options         => :inner_options,
+          :inner_overridden_by_task                  => :task,
+          :inner_overridden_by_execute               => :exe,
+          :inner_options_not_overridden              => :inner_options,
+          :inner_options_overridden_by_task          => :task,
+          :inner_options_overridden_by_execute       => :exe,
+          :task_not_overridden                       => :task,
+          :task_overridden_by_execute                => :exe,
+          :execute_not_overridden                    => :exe }
       end
     end
   end
