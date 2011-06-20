@@ -165,6 +165,57 @@ describe Tasker do
           :execute_not_overridden                    => :exe }
       end
     end
+
+    context "the task lookup order" do
+      before( :each ) do
+        namespace "outer" do
+          namespace "inner" do
+            task "my_task" do
+              @executed << "outer::inner::my_task"
+            end
+          end
+
+          task "relative_lookup" do
+            execute "inner::my_task" 
+          end
+
+          task "fallback_lookup" do
+            execute "inner::other_task"
+          end
+
+          task "absolute_lookup" do
+            execute "::inner::my_task" 
+          end
+        end
+
+        namespace "inner" do
+          task "my_task" do
+            @executed << "inner::my_task"
+          end
+
+          task "other_task" do
+            @executed << "inner::other_task"
+          end
+        end
+        
+        @executed = []
+      end
+
+      it "should perform relative lookup first" do
+        execute "outer::relative_lookup"
+        @executed.last.should == "outer::inner::my_task"
+      end
+
+      it "should perform absolute lookups if the relative lookup didn't find anything" do
+        execute "outer::fallback_lookup"
+        @executed.last.should == "inner::other_task"
+      end
+
+      it "should perform absolute lookup when the name is prefixed by ::" do
+        execute "outer::absolute_lookup"
+        @executed.last.should == "inner::my_task"
+      end
+    end
   end
 
   describe "#options" do

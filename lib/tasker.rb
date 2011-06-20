@@ -57,19 +57,29 @@ module Tasker
   def execute( name, options = {} )
     @__parent_namespace ||= []
     task = nil
-    if @__parent_namespace.last
-      task = Tasker::Namespace.find_task( @__parent_namespace.last.name + "::" + name ) 
+    if name.start_with?('::') 
+      name.slice!(0,2)
+      task = Tasker::Namespace.find_task( name )
+    else
+      if @__parent_namespace.last 
+        full_name = @__parent_namespace.last.name + "::" + name
+        task = Tasker::Namespace.find_task( full_name )
+      end
+
+      task ||= Tasker::Namespace.find_task( name )
     end
-    task ||= Tasker::Namespace.find_task( name )
   
     if !task
       msg = "Unknown task '#{name}'"
-      msg << "or #{fully_qualified_name( name )}" if @__parent_namespace.size > 0
+      msg << " or #{fully_qualified_name( name )}" if @__parent_namespace.size > 0
       abort( msg )
     end
+
     namespace_hierarchy_options = gather_options_for( name, task )
     namespace_hierarchy_options.merge!( options )
+    @__parent_namespace.push( task.parent_namespace )
     task.execute( namespace_hierarchy_options )
+    @__parent_namespace.pop
   end
   alias_method :invoke, :execute
   alias_method :run, :execute
