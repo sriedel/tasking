@@ -40,6 +40,14 @@ module Tasker
       self.class.add_namespace( self )
     end
 
+    def parent_namespace
+      ns_segments = @name.split( '::' )
+      ns_segments.pop # get rid of ourselves
+      parent_name = ns_segments.join( '::' )
+      return nil if parent_name == ''
+      return self.class.find_namespace( parent_name )
+    end
+
     def execute( options = {}, &block )
       @options.merge! options
       block.call if block

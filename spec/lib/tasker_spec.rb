@@ -371,6 +371,7 @@ describe Tasker do
       it "should add the namespace to Namespace.all" do
         expect { namespace( namespace_name, namespace_options, &namespace_block ) }.to change { Tasker::Namespace.all.size }.by(1)
         Tasker::Namespace.all.last.name.should == namespace_name
+        Tasker::Namespace.all.last.parent_namespace.should be_nil
       end
     end
 
@@ -379,24 +380,30 @@ describe Tasker do
         it "should have the outer namespace" do
           ns = Tasker::Namespace.find_namespace( "second_namespace" )
           ns.should be_a( Tasker::Namespace )
+          ns.parent_namespace.should be_nil
         end
 
         it "should have the outer namespace" do
           ns = Tasker::Namespace.find_namespace( "outer_namespace" )
           ns.should be_a( Tasker::Namespace )
           ns.options.should == {}
+          ns.parent_namespace.should be_nil
         end
           
         it "should have the middle namespace" do
           ns = Tasker::Namespace.find_namespace( "outer_namespace::middle_namespace" )
           ns.should be_a( Tasker::Namespace )
           ns.options.should == {}
+          ns.parent_namespace.should be_a( Tasker::Namespace )
+          ns.parent_namespace.name.should == "outer_namespace"
         end
           
         it "should have the inner namespace" do
           ns = Tasker::Namespace.find_namespace( "outer_namespace::middle_namespace::inner_namespace" )
           ns.should be_a( Tasker::Namespace )
           ns.options.should == namespace_options
+          ns.parent_namespace.should be_a( Tasker::Namespace )
+          ns.parent_namespace.name.should == "outer_namespace::middle_namespace"
         end
 
         it "should have only the defined namespaces" do
