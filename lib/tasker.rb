@@ -24,18 +24,20 @@ module Tasker
 
   def namespace( name, options = {}, &block ) 
     abort( "Namespaces with empty names are not allowed" ) if name.to_s == ""
+    @__parent_namespace ||= []
 
     full_name = fully_qualified_name( name )
     parent_namespace_names, _ = split_task_from_namespace( full_name )
     build_namespace_hierarchy( parent_namespace_names )
 
-    @__parent_namespace = Tasker::Namespace.find_or_create( full_name, options )
-    @__parent_namespace.execute( options, &block )
-    @__parent_namespace = nil
+    next_namespace = Tasker::Namespace.find_or_create( full_name, options )
+    @__parent_namespace.push next_namespace
+    next_namespace.execute( options, &block )
+    @__parent_namespace.pop
   end
 
   def options( options ) 
-    @__parent_namespace.merge_options( options )
+    @__parent_namespace.last.merge_options( options )
   end
 
   def before( task_name, *before_task_names )
@@ -53,11 +55,17 @@ module Tasker
   end
 
   def execute( name, options = {} )
-    task = Tasker::Namespace.find_task( name )
+    @__parent_namespace ||= []
+    STDERR.puts "Excuting #{name}"
+    task = nil
+    if @__parent_namespace.last
+      task = Tasker::Namespace.find_task( @__parent_namespace.last.name + "::" + name ) 
+    end
+    task ||= Tasker::Namespace.find_task( name )
   
     if !task
       msg = "Unknown task '#{name}'"
-      msg << "or #{fully_qualified_name( name )}" if @__parent_namespace
+      msg << "or #{fully_qualified_name( name )}" if @__parent_namespace.size > 0
       abort( msg )
     end
     namespace_hierarchy_options = gather_options_for( name, task )
@@ -96,7 +104,9 @@ module Tasker
   end
 
   def fully_qualified_name( name )
-    @__parent_namespace ? "#{@__parent_namespace.name}::#{name}" : name
+    @__parent_namespace && @__parent_namespace.last ? 
+      "#{@__parent_namespace.last.name}::#{name}" : 
+      name
   end
 
   def build_namespace_hierarchy( full_name ) 
