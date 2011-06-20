@@ -55,19 +55,7 @@ module Tasker
   end
 
   def execute( name, options = {} )
-    @__parent_namespace ||= []
-    task = nil
-    if name.start_with?('::') 
-      name.slice!(0,2)
-      task = Tasker::Namespace.find_task( name )
-    else
-      if @__parent_namespace.last 
-        full_name = @__parent_namespace.last.name + "::" + name
-        task = Tasker::Namespace.find_task( full_name )
-      end
-
-      task ||= Tasker::Namespace.find_task( name )
-    end
+    task = task_lookup( name )
   
     if !task
       msg = "Unknown task '#{name}'"
@@ -85,6 +73,26 @@ module Tasker
   alias_method :run, :execute
 
   private
+  def task_lookup( name )
+    @__parent_namespace ||= []
+    task = nil
+
+    if name.start_with?('::') 
+      name.slice!(0,2)
+      task = Tasker::Namespace.find_task( name )
+
+    else
+      if @__parent_namespace.last 
+        full_name = @__parent_namespace.last.name + "::" + name
+        task = Tasker::Namespace.find_task( full_name )
+      end
+
+      task ||= Tasker::Namespace.find_task( name )
+    end
+
+    task
+  end
+
   def walk_namespace_tree_to( namespace_name, type = :namespace, &block )
     ns_segments = namespace_name.split( '::' )
     ns_segments.pop if type != :namespace
