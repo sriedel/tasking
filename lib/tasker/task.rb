@@ -1,9 +1,11 @@
 module Tasker
   class Task
-    attr_reader :name, :options, :block, :before_filters, :after_filters
+    attr_reader :name, :options, :block, :before_filters, :after_filters,
+                :parent_namespace
 
-    def initialize( name, options = {}, &block )
+    def initialize( name, parent_namespace, options = {}, &block )
       @name = name
+      @parent_namespace = parent_namespace
       @options = options
       @block = block
       @before_filters = []

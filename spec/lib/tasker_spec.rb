@@ -269,6 +269,7 @@ describe Tasker do
         registered_tasks = Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace::inner_namespace" }.tasks
         registered_tasks.size.should == 1
         registered_tasks.first.name.should == task_name
+        registered_tasks.first.parent_namespace.name.should == "outer_namespace::inner_namespace" 
       end
 
       it "should not add the task to the outer namespace task list" do

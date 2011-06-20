@@ -17,7 +17,7 @@ module Tasker
 
       parent_namespace.unregister_task( existing_task ) if existing_task
 
-      task = Tasker::Task.new( task_name, options, &block )
+      task = Tasker::Task.new( task_name, parent_namespace, options, &block )
       parent_namespace.register_task( task )
     end
   end
@@ -56,7 +56,6 @@ module Tasker
 
   def execute( name, options = {} )
     @__parent_namespace ||= []
-    STDERR.puts "Excuting #{name}"
     task = nil
     if @__parent_namespace.last
       task = Tasker::Namespace.find_task( @__parent_namespace.last.name + "::" + name ) 
