@@ -83,44 +83,77 @@ describe Tasker do
   end
 
   describe "#after" do
-    before( :each ) do
-      @executed = []
+    context "the order of execution" do
+      before( :each ) do
+        @executed = []
 
-      namespace "foo" do
-        task "after1" do
-          @executed << "after1"
+        namespace "foo" do
+          task "after1" do
+            @executed << "after1"
+          end
+
+          task "after2" do
+            @executed << "after2"
+          end
+
+          task "target" do
+            @executed << "target"
+          end
+
         end
+      end
 
-        task "after2" do
-          @executed << "after2"
-        end
+      it "should execute the after filters after the main target" do
+        after "foo::target", "foo::after1", "foo::after2"
+        execute "foo::target"
+        @executed.should == [ "target", "after1", "after2" ]
+      end
 
-        task "target" do
-          @executed << "target"
-        end
+      it "should accept the after filters as an array" do
+        after "foo::target", [ "foo::after1", "foo::after2" ]
+        execute "foo::target"
+        @executed.should == [ "target", "after1", "after2" ]
+      end
 
+      it "should raise an error if the main task is unknown" do
+        lambda { after "foo::unknown", "foo::after1" }.should raise_error
+      end
+
+      it "should raise an error if a filter is unknown on execution" do
+        after "foo::target", "foo::unknown"
+        lambda { execute "foo::target" }.should raise_error
       end
     end
 
-    it "should execute the after filters after the main target" do
-      after "foo::target", "foo::after1", "foo::after2"
-      execute "foo::target"
-      @executed.should == [ "target", "after1", "after2" ]
-    end
+    context "the lookup" do
+      before( :each ) do
+        namespace "outer" do
 
-    it "should accept the after filters as an array" do
-      after "foo::target", [ "foo::after1", "foo::after2" ]
-      execute "foo::target"
-      @executed.should == [ "target", "after1", "after2" ]
-    end
+          namespace "inner" do
+            task( "relative" ) { @executed << "outer::inner::relative" }
+          end
 
-    it "should raise an error if the main task is unknown" do
-      lambda { after "foo::unknown", "foo::after1" }.should raise_error
-    end
+          task( "direct" ) { @executed << "outer::direct" }
+          task( "mytask" ) { @executed << "outer::mytask" }
+          after "mytask", "direct", "inner::relative", "::inner::absolute", "inner::fallback"
+        end
 
-    it "should raise an error if a filter is unknown on execution" do
-      after "foo::target", "foo::unknown"
-      lambda { execute "foo::target" }.should raise_error
+        namespace "inner" do
+          task( "absolute" ) { @executed << "inner::absolute" }
+          task( "fallback" ) { @executed << "inner::fallback" }
+        end
+        
+        @executed = []
+      end
+
+      it "should be able to do relative and absolute lookups" do
+        execute "outer::mytask"
+        @executed.should == [ "outer::mytask",
+                              "outer::direct", 
+                              "outer::inner::relative",
+                              "inner::absolute",
+                              "inner::fallback" ]
+      end
     end
   end
 

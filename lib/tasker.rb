@@ -49,7 +49,8 @@ module Tasker
   end
 
   def after( task_name, *after_task_names )
-    task = Tasker::Namespace.find_task( task_name )
+    task = Tasker::Namespace.find_task( task_name ) ||
+           Tasker::Namespace.find_task( fully_qualified_name( task_name ) )
     abort( "Unknown task '#{task_name}' in after filter" ) unless task
 
     task.add_after_filters( *after_task_names )
