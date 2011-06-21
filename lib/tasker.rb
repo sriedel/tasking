@@ -41,7 +41,8 @@ module Tasker
   end
 
   def before( task_name, *before_task_names )
-    task = Tasker::Namespace.find_task( task_name )
+    task = Tasker::Namespace.find_task( task_name ) ||
+           Tasker::Namespace.find_task( fully_qualified_name( task_name ) )
     abort( "Unknown task '#{task_name}' in before filter" ) unless task
 
     task.add_before_filters( *before_task_names )
