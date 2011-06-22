@@ -50,6 +50,33 @@ describe Tasker do
       end
     end
 
+    context "late execution" do
+      before( :each ) do
+        namespace "outer" do
+          before "my_task", "first_task"
+
+          task "first_task" do
+            @executed << "outer::first_task"
+          end
+
+          task "outer::my_task" do
+            @executed << "outer::my_task"
+          end
+        end
+
+        @executed = []
+      end
+
+      it "should not raise an error early on unresolved task names" do
+        lambda { execute( "outer::my_task" ) }.should_not raise_error
+      end
+
+      it "should execute as expected" do
+        execute( "outer::my_task" )
+        @executed.should == [ "outer::first_task", "outer::my_task" ]
+      end
+    end
+
     context "the lookup" do
       before( :each ) do
         namespace "outer" do
