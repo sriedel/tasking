@@ -1,1 +1,1 @@
-- Relative namespace/task lookup is still flakey
+- Add a DelayedExecution class and registry for consistent lookups from the same frame of parent-namespace-reference
