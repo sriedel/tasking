@@ -40,23 +40,50 @@ module Tasker
     @__parent_namespace.last.merge_options( options )
   end
 
-  def before( task_name, *before_task_names )
+  def late_before( task_name, parent_namespace_name, *before_task_names )
     task = Tasker::Namespace.find_task( task_name ) ||
-           Tasker::Namespace.find_task( fully_qualified_name( task_name ) )
+           Tasker::Namespace.find_task( parent_namespace_name + "::" + task_name )
     abort( "Unknown task '#{task_name}' in before filter" ) unless task
 
     task.add_before_filters( *before_task_names )
   end
 
-  def after( task_name, *after_task_names )
+  def late_after( task_name, parent_namespace_name, *after_task_names )
     task = Tasker::Namespace.find_task( task_name ) ||
-           Tasker::Namespace.find_task( fully_qualified_name( task_name ) )
+           Tasker::Namespace.find_task( parent_namespace_name + "::" + task_name ) 
     abort( "Unknown task '#{task_name}' in after filter" ) unless task
 
     task.add_after_filters( *after_task_names )
   end
 
+  def before( task_name, *before_task_names )
+    @__late_evaluations ||= {}
+    @__late_evaluations[:before] ||= []
+    parent_namespace_name = @__parent_namespace.last ? @__parent_namespace.last.name : ""
+    @__late_evaluations[:before] << [ task_name, parent_namespace_name, before_task_names.flatten ]
+  end
+
+  def after( task_name, *after_task_names )
+    @__late_evaluations ||= {}
+    @__late_evaluations[:after] ||= []
+    parent_namespace_name = @__parent_namespace.last ? @__parent_namespace.last.name : ""
+    @__late_evaluations[:after] << [ task_name, parent_namespace_name, after_task_names.flatten ]
+  end
+
+  def late_evaluations
+    return unless @__late_evaluations
+    @__late_evaluations.each_pair do |type, task_parameters|
+      task_parameters.each do |( task_name, parent_namespace_name, args )|
+        self.send :"late_#{type}", task_name, parent_namespace_name, *args
+      end
+    end
+  end
+
   def execute( name, options = {} )
+    if !@__subsequent_executions
+      @__subsequent_executions = true
+      late_evaluations
+    end
     task = task_lookup( name )
   
     if !task

@@ -2,6 +2,16 @@ module Tasker
   class Namespace
     attr_reader :name, :options, :tasks
 
+    def self.structure
+      result = []
+      all.each do |ns|
+        ns.tasks.each do |t|
+          result << "#{ns.name}::#{t.name}"
+        end
+      end
+      result
+    end
+
     def self.all
       @namespaces ||= []
     end

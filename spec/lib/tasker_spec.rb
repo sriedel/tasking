@@ -41,7 +41,10 @@ describe Tasker do
       end
 
       it "should raise an error if the main task is unknown" do
-        lambda { before "foo::unknown", "foo::before1" }.should raise_error
+        lambda do
+          before "foo::unknown", "foo::before1" 
+          execute "foo::unknown"
+        end.should raise_error
       end
 
       it "should raise an error if a filter is unknown on execution" do
@@ -59,7 +62,7 @@ describe Tasker do
             @executed << "outer::first_task"
           end
 
-          task "outer::my_task" do
+          task "my_task" do
             @executed << "outer::my_task"
           end
         end
@@ -143,7 +146,10 @@ describe Tasker do
       end
 
       it "should raise an error if the main task is unknown" do
-        lambda { after "foo::unknown", "foo::after1" }.should raise_error
+        lambda do
+          after "foo::unknown", "foo::after1" 
+          execute "foo::unknown"
+        end.should raise_error
       end
 
       it "should raise an error if a filter is unknown on execution" do
