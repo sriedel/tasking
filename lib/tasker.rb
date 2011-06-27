@@ -41,16 +41,16 @@ module Tasker
   end
 
   def late_before( task_name, parent_namespace_name, *before_task_names )
-    task = Tasker::Namespace.find_task( task_name ) ||
-           Tasker::Namespace.find_task( parent_namespace_name + "::" + task_name )
+    task = Tasker::Namespace.find_task( parent_namespace_name + "::" + task_name ) ||
+           Tasker::Namespace.find_task( task_name ) 
     abort( "Unknown task '#{task_name}' in before filter" ) unless task
 
     task.add_before_filters( *before_task_names )
   end
 
   def late_after( task_name, parent_namespace_name, *after_task_names )
-    task = Tasker::Namespace.find_task( task_name ) ||
-           Tasker::Namespace.find_task( parent_namespace_name + "::" + task_name ) 
+    task = Tasker::Namespace.find_task( parent_namespace_name + "::" + task_name ) ||
+           Tasker::Namespace.find_task( task_name ) 
     abort( "Unknown task '#{task_name}' in after filter" ) unless task
 
     task.add_after_filters( *after_task_names )
