@@ -29,10 +29,6 @@ module Tasker
     private
     def execute_task_chain( tasks, fail_message )
       tasks.each do |t|
-        # ns_segments = t.split( '::' )
-        # task_name = ns_segments.pop
-        # namespace_name = ns_segments.join( '::' )
-        # task = Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
         task = task_lookup( t )
         abort( fail_message % t ) unless task
         task.execute
@@ -40,19 +36,8 @@ module Tasker
     end
 
     def task_lookup( name )
-      task = nil
-
-      if name.start_with?('::') 
-        name.slice!(0,2)
-        task = Tasker::Namespace.find_task( name )
-
-      else
-        full_name = self.parent_namespace.name + "::" + name
-        task = Tasker::Namespace.find_task( full_name )
-        task ||= Tasker::Namespace.find_task( name )
-      end
-
-      task
+      name.slice!(0,2) if name.start_with?('::') 
+      Tasker::Namespace.find_task( name )
     end
   end
 end

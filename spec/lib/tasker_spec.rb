@@ -56,7 +56,7 @@ describe Tasker do
     context "late execution" do
       before( :each ) do
         namespace "outer" do
-          before "my_task", "first_task"
+          before "my_task", "outer::first_task"
 
           task "first_task" do
             @executed << "outer::first_task"
@@ -90,7 +90,7 @@ describe Tasker do
 
           task( "direct" ) { @executed << "outer::direct" }
           task( "mytask" ) { @executed << "outer::mytask" }
-          before "mytask", "direct", "inner::relative", "::inner::absolute", "inner::fallback"
+          before "mytask", "outer::direct", "::inner::absolute", "inner::fallback"
         end
 
         namespace "inner" do
@@ -104,7 +104,6 @@ describe Tasker do
       it "should be able to do relative and absolute lookups" do
         execute "outer::mytask"
         @executed.should == [ "outer::direct", 
-                              "outer::inner::relative",
                               "inner::absolute",
                               "inner::fallback",
                               "outer::mytask" ]
@@ -168,7 +167,7 @@ describe Tasker do
 
           task( "direct" ) { @executed << "outer::direct" }
           task( "mytask" ) { @executed << "outer::mytask" }
-          after "mytask", "direct", "inner::relative", "::inner::absolute", "inner::fallback"
+          after "mytask", "outer::direct", "::inner::absolute", "inner::fallback"
         end
 
         namespace "inner" do
@@ -183,7 +182,6 @@ describe Tasker do
         execute "outer::mytask"
         @executed.should == [ "outer::mytask",
                               "outer::direct", 
-                              "outer::inner::relative",
                               "inner::absolute",
                               "inner::fallback" ]
       end
