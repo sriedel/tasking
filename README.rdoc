@@ -1,0 +1,77 @@
+=== The DSL
+The DSL has the following commands:
+  * namespace
+  * task
+  * options
+  * before
+  * after
+  * execute
+
+==== Namespaces
+Namespaces are used to organize tasks into logical units and isolate options
+from each other. Namespaces can be nested. To reference a nested namespace you
+can use the format "outer_name::inner_name". To reference a namespace with it's
+absolute name, prefix the name with a "::", e.g. "::outer::inner".
+
+Namespaces can be re-opened. In that case their content will be merged with the
+original content.
+
+==== Tasks
+Tasks contain commands to be executed. The execution of a task can be modified
+by supplying before- and after-task chains (see the before/after sections
+below).
+
+Note that each task _must_ be contained in a namespace. Top-Level tasks will
+raise an error.
+
+Opening a task with a name that already exists within the same namespace will
+overwrite the original task.
+
+==== Before/After
+The before and after commands modify the execution chain of a task, by giving a
+list of other tasks that should be executed before and after the main task is
+executed. Note that these filters will be run each time the main task is run.
+
+Also, while the main task name can be given relative to the current namespace,
+the tasks in the chain are always interpreted in an absolute fashion.
+
+Referencing a task that does not exist will raise an error. 
+
+Also note that the before and after commands can only be given within the scope
+of a namespace, not within a task.
+
+==== Execute
+aka run, invoke. Used to execute another task from within a task. The only
+command that may be supplied within a task (and only from within a task). 
+
+The supplied task name will first be looked up in a fashion relative to the
+current tasks parent namespace. If no task is found there, an absolute lookup
+is performed. Will raise an error if a non-existant task is referenced.
+
+==== Options
+Supplies a hash of options that can accessed from within a task. Supplying
+options within nested namespaces will result in the inner namespace merging its
+set of options with the outer namespaces options.
+
+Note that the namespace, task and execute commands can also supply an explicit
+hash of options.
+
+For example:
+namespace "outer", :foo => :bar do
+  options :bar => :baz
+  namespace "inner", :baz => :quux do
+    options :quux => :narf
+    task "some task" do
+      execute "my task", :bla => :blubb
+    end
+
+    task "my task", :narf => :bla do |options|
+      # options now has the contents: { :foo => :bar,
+                                        :bar => :baz,
+                                        :baz => :quux,
+                                        :quux => :narf,
+                                        :narf => :bla,
+                                        :bla  => :blubb }
+    end
+
+
