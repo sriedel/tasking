@@ -1,3 +1,6 @@
+=== Running tasks from the command line
+tasker <task_name>
+
 === The DSL
 The DSL has the following commands:
   * namespace
@@ -57,21 +60,22 @@ Note that the namespace, task and execute commands can also supply an explicit
 hash of options.
 
 For example:
-namespace "outer", :foo => :bar do
-  options :bar => :baz
-  namespace "inner", :baz => :quux do
-    options :quux => :narf
-    task "some task" do
-      execute "my task", :bla => :blubb
+
+    namespace "outer", :foo => :bar do
+      options :bar => :baz
+      namespace "inner", :baz => :quux do
+        options :quux => :narf
+        task "some task" do
+          execute "my task", :bla => :blubb
+        end
+
+        task "my task", :narf => :bla do |options|
+          # options now has the contents: { :foo => :bar,
+                                            :bar => :baz,
+                                            :baz => :quux,
+                                            :quux => :narf,
+                                            :narf => :bla,
+                                            :bla  => :blubb }
+        end
+      end
     end
-
-    task "my task", :narf => :bla do |options|
-      # options now has the contents: { :foo => :bar,
-                                        :bar => :baz,
-                                        :baz => :quux,
-                                        :quux => :narf,
-                                        :narf => :bla,
-                                        :bla  => :blubb }
-    end
-
-
