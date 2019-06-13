@@ -6,6 +6,10 @@ RSpec.configure do |config|
     mocks.syntax = :should
   end
 
+  config.expect_with :rspec do |expect|
+    expect.syntax = [ :should, :expect ]
+  end
+
   config.order = :random
   Kernel.srand config.seed
 end

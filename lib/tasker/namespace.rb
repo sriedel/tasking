@@ -1,39 +1,31 @@
 module Tasker
   class Namespace
-    attr_reader :name, :options, :tasks
+    attr_reader :name, :options
 
-    def self.structure
-      result = []
-      all.each do |ns|
-        ns.tasks.each do |t|
-          result << "#{ns.name}::#{t.name}"
-        end
-      end
-      result
+    def self.namespaces
+      @namespaces ||= {}
     end
+    private_class_method :namespaces
 
     def self.all
-      @namespaces ||= []
+      namespaces.values
     end
 
     def self.add_namespace( ns )
-      @namespaces ||= []
-      @namespaces << ns
+      namespaces[ns.name] = ns
     end
 
     def self.find_namespace( name )
-      all.detect { |ns| ns.name == name }
+      namespaces[name]
     end
 
     def self.find_task_in_namespace( ns_name, task_name )
       ns = find_namespace( ns_name )
-      ns ? ns.tasks.detect { |t| t.name == task_name } : nil
+      ns&.find_task( task_name )
     end
 
     def self.find_task( full_name )
-      namespace_segments = full_name.split( '::' )
-      task_name = namespace_segments.pop
-      namespace_name = namespace_segments.join( '::' )
+      namespace_name, _, task_name = full_name.rpartition( '::' )
 
       Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
     end
@@ -43,32 +35,29 @@ module Tasker
     end
 
     def self.structure
-      structure = {}
-      all.each do |ns|
-        structure[ns.name] = ns.tasks.map(&:name)
-      end
-
-      structure
+      namespaces.map { |name, namespace| [ name, namespace.tasks.map(&:name)] }
     end
 
     def initialize( name, options = {} )
-      @tasks = []
+      @tasks = {}
       @name = name
       @options = options
       
       self.class.add_namespace( self )
     end
 
+    def tasks
+      @tasks.values
+    end
+
     def parent_namespace
-      ns_segments = @name.split( '::' )
-      ns_segments.pop # get rid of ourselves
-      parent_name = ns_segments.join( '::' )
-      return nil if parent_name == ''
-      return self.class.find_namespace( parent_name )
+      parent_name, _, _ = @name.rpartition( '::' )
+
+      parent_name.empty? ? nil : self.class.find_namespace( parent_name)
     end
 
     def execute( options = {}, &block )
-      @options.merge! options
+      @options.merge!( options )
       block.call if block
     end
 
@@ -77,16 +66,15 @@ module Tasker
     end
 
     def register_task( task )
-      @tasks << task
+      @tasks[task.name] = task
     end
 
     def unregister_task( task )
-      @tasks.delete( task )
+      @tasks.delete( task.name )
     end
 
     def find_task( name )
-      @tasks.detect { |t| t.name == name }
+      @tasks[name]
     end
-
   end
 end

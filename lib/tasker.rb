@@ -2,28 +2,22 @@
 
 module Tasker
   def task( name, options = {}, &block )
-    abort( "Tasks with empty names are not allowed" ) if name.to_s == ""
+    abort( "Tasks with empty names are not allowed" ) if name.to_s.empty?
 
     full_name = fully_qualified_name( name )
     namespace_name, task_name = split_task_from_namespace( full_name )
 
-    if namespace_name == ""
-      abort( "Task '#{name}' is not in a namespace" ) 
-    else
-      build_namespace_hierarchy( namespace_name )
+    abort( "Task '#{name}' is not in a namespace" ) if namespace_name.empty?
 
-      parent_namespace = Tasker::Namespace.find_namespace( namespace_name )
-      existing_task = parent_namespace.find_task( task_name )
+    build_namespace_hierarchy( namespace_name )
 
-      parent_namespace.unregister_task( existing_task ) if existing_task
-
-      task = Tasker::Task.new( task_name, parent_namespace, options, &block )
-      parent_namespace.register_task( task )
-    end
+    parent_namespace = Tasker::Namespace.find_namespace( namespace_name )
+    task = Tasker::Task.new( task_name, parent_namespace, options, &block )
+    parent_namespace.register_task( task )
   end
 
   def namespace( name, options = {}, &block ) 
-    abort( "Namespaces with empty names are not allowed" ) if name.to_s == ""
+    abort( "Namespaces with empty names are not allowed" ) if name.to_s.empty?
     @__parent_namespace ||= []
 
     full_name = fully_qualified_name( name )
@@ -31,7 +25,7 @@ module Tasker
     build_namespace_hierarchy( parent_namespace_names )
 
     next_namespace = Tasker::Namespace.find_or_create( full_name, options )
-    @__parent_namespace.push next_namespace
+    @__parent_namespace.push( next_namespace )
     next_namespace.execute( options, &block )
     @__parent_namespace.pop
   end
@@ -41,7 +35,7 @@ module Tasker
   end
 
   def late_before( task_name, parent_namespace_name, *before_task_names )
-    task = Tasker::Namespace.find_task( parent_namespace_name + "::" + task_name ) ||
+    task = Tasker::Namespace.find_task_in_namespace( parent_namespace_name, task_name ) ||
            Tasker::Namespace.find_task( task_name ) 
     abort( "Unknown task '#{task_name}' in before filter" ) unless task
 
@@ -49,7 +43,7 @@ module Tasker
   end
 
   def late_after( task_name, parent_namespace_name, *after_task_names )
-    task = Tasker::Namespace.find_task( parent_namespace_name + "::" + task_name ) ||
+    task = Tasker::Namespace.find_task_in_namespace( parent_namespace_name, task_name ) ||
            Tasker::Namespace.find_task( task_name ) 
     abort( "Unknown task '#{task_name}' in after filter" ) unless task
 
@@ -59,14 +53,14 @@ module Tasker
   def before( task_name, *before_task_names )
     @__late_evaluations ||= {}
     @__late_evaluations[:before] ||= []
-    parent_namespace_name = @__parent_namespace.last ? @__parent_namespace.last.name : ""
+    parent_namespace_name = @__parent_namespace.last&.name.to_s
     @__late_evaluations[:before] << [ task_name, parent_namespace_name, before_task_names.flatten ]
   end
 
   def after( task_name, *after_task_names )
     @__late_evaluations ||= {}
     @__late_evaluations[:after] ||= []
-    parent_namespace_name = @__parent_namespace.last ? @__parent_namespace.last.name : ""
+    parent_namespace_name = @__parent_namespace.last&.name.to_s
     @__late_evaluations[:after] << [ task_name, parent_namespace_name, after_task_names.flatten ]
   end
 
@@ -74,7 +68,7 @@ module Tasker
     return unless @__late_evaluations
     @__late_evaluations.each_pair do |type, task_parameters|
       task_parameters.each do |( task_name, parent_namespace_name, args )|
-        self.send :"late_#{type}", task_name, parent_namespace_name, *args
+        self.send( :"late_#{type}", task_name, parent_namespace_name, *args )
       end
     end
   end
@@ -106,20 +100,17 @@ module Tasker
     @__parent_namespace ||= []
     task = nil
 
-    if name.start_with?('::') 
-      name.slice!(0,2)
-      task = Tasker::Namespace.find_task( name )
-
-    else
-      if @__parent_namespace.last 
-        full_name = @__parent_namespace.last.name + "::" + name
-        task = Tasker::Namespace.find_task( full_name )
-      end
-
-      task ||= Tasker::Namespace.find_task( name )
+    if name.start_with?( '::' ) 
+      name.slice!( 0, 2 )
+      return Tasker::Namespace.find_task( name )
     end
 
-    task
+    if @__parent_namespace.last 
+      full_name = "#{@__parent_namespace.last.name}::#{name}"
+      task = Tasker::Namespace.find_task( full_name )
+    end
+
+    task || Tasker::Namespace.find_task( name )
   end
 
   def walk_namespace_tree_to( namespace_name, type = :namespace, &block )
@@ -150,7 +141,7 @@ module Tasker
   end
 
   def fully_qualified_name( name )
-    @__parent_namespace && @__parent_namespace.last ? 
+    @__parent_namespace&.last ? 
       "#{@__parent_namespace.last.name}::#{name}" : 
       name
   end
@@ -162,11 +153,9 @@ module Tasker
   end
 
   def split_task_from_namespace( full_name )
-    namespace_segments = full_name.split( '::' )
-    task_name = namespace_segments.pop
-    namespace_name = namespace_segments.join( '::' )
+    namespace_name, _, task_name = full_name.rpartition( '::' )
 
-    return namespace_name, task_name
+    [ namespace_name, task_name ]
   end
 end
 

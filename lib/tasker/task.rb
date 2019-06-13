@@ -4,12 +4,12 @@ module Tasker
                 :parent_namespace
 
     def initialize( name, parent_namespace, options = {}, &block )
-      @name = name
+      @name             = name
       @parent_namespace = parent_namespace
-      @options = options
-      @block = block
-      @before_filters = []
-      @after_filters = []
+      @options          = options
+      @block            = block
+      @before_filters   = []
+      @after_filters    = []
     end
 
     def add_before_filters( *filters )
@@ -36,7 +36,7 @@ module Tasker
     end
 
     def task_lookup( name )
-      name.slice!(0,2) if name.start_with?('::') 
+      name.slice!( 0, 2 ) if name.start_with?( '::' ) 
       Tasker::Namespace.find_task( name )
     end
   end
