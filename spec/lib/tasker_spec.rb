@@ -649,7 +649,7 @@ describe Tasker do
 
       it "should execute the absolute task if found" do
         execute( "foo::execute_relative" )
-        @executed.should == "bar::my_task"
+        @executed.should == "foo::bar::my_task"
 
         execute( "foo::execute_absolute" )
         @executed.should == "foo::bar::my_task"
@@ -658,8 +658,6 @@ describe Tasker do
 
     context "when given a relative task name" do
       before( :each ) do
-        pending
-
         namespace "foo" do
           task "my_task" do
             execute "bar::my_task"

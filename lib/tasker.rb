@@ -170,5 +170,5 @@ module Tasker
   end
 end
 
-require 'lib/tasker/namespace'
-require 'lib/tasker/task'
+require_relative 'tasker/namespace'
+require_relative 'tasker/task'

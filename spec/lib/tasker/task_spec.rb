@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Tasker::Task do
   describe "a new task" do
     let( :task_name ) { "dummy_task" }
-    let( :parent_namespace ) { mock( Tasker::Namespace ) }
+    let( :parent_namespace ) { double( Tasker::Namespace ) }
     let( :task_options ) { { :foo => :bar } }
     let( :task_block ) { Proc.new { } }
 
