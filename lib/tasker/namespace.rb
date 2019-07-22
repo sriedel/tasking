@@ -34,10 +34,6 @@ module Tasker
       find_namespace( name ) || new( name, options )
     end
 
-    def self.structure
-      namespaces.map { |name, namespace| [ name, namespace.tasks.map(&:name)] }
-    end
-
     def initialize( name, options = {} )
       @tasks = {}
       @name = name
@@ -53,7 +49,7 @@ module Tasker
     def parent_namespace
       parent_name, _, _ = @name.rpartition( '::' )
 
-      parent_name.empty? ? nil : self.class.find_namespace( parent_name)
+      parent_name.empty? ? nil : self.class.find_namespace( parent_name )
     end
 
     def execute( options = {}, &block )
