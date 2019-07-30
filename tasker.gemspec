@@ -1,10 +1,10 @@
 Gem::Specification.new do |s|
-  s.version = "0.1.0"
+  s.version = "0.1.1"
   s.author = "Sven Riedel"
   s.files = %w[ README.rdoc ] +
              Dir.glob( "bin/**/*" ) +
              Dir.glob( "lib/**/*" )
-  s.name = "sideq"
+  s.name = "tasker"
   s.bindir = "bin"
   s.executables = []
 
