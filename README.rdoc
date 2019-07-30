@@ -59,6 +59,18 @@ set of options with the outer namespaces options.
 Note that the namespace, task and execute commands can also supply an explicit
 hash of options.
 
+At the time being, explicitly invoking a task from another task does not 
+automatically supply the invoking tasks options to the invoked task.
+
+Options that have a value that responds to #call (procs, lambdas, methods) will
+be resolved to the return value of that #call invocation right before a task
+is executed. During the resolving of the options, the original set of 
+(unresolved) options is passed as an argument.
+
+Option resolution happens every time a task is executed, and the results are
+not persisted or memoized. The resolution happens independently for before
+and after hook tasks from the main task being executed.
+
 For example:
 
     namespace "outer", :foo => :bar do
