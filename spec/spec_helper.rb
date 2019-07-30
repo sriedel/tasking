@@ -1,4 +1,5 @@
 require 'rspec/its'
+require 'byebug'
 require_relative '../lib/tasker'
 
 RSpec.configure do |config|
