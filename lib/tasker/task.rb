@@ -21,13 +21,18 @@ module Tasker
     end
 
     def execute( options = {} )
-      total_options = @options.merge(options)
+      total_options = @options.merge( options )
       execute_task_chain( before_filters, total_options, "Unknown before task '%s' for task '#{@name}'" )
-      @block.call( total_options ) if @block
+      @block.call( resolve_options( total_options ) ) if @block
       execute_task_chain( after_filters, total_options, "Unknown after task '%s' for task '#{@name}'" )
     end
 
     private
+
+    def resolve_options(options)
+      options.transform_values { |v| v.respond_to?(:call) ? v.call(options) : v }
+    end
+
     def execute_task_chain( tasks, options, fail_message )
       tasks.each do |t|
         task = task_lookup( t )

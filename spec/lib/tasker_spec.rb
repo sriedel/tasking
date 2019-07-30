@@ -685,5 +685,32 @@ describe Tasker do
         lambda { execute "foo::bar" }.should raise_error
       end
     end
+
+    context "when given options whose values are lambdas" do
+      before(:each) do
+        @resolved_options = nil
+
+        namespace "option_resolver", :scalar_namespace_option => 'foo', 
+                                     :lambda_namespace_option => lambda { |_opts| 'bar' } do
+          task "task_with_options", :scalar_task_option => 'baz',
+                                    :lambda_task_option => lambda { |_opts| 'quux' } do |resolved_options|
+            @resolved_options = resolved_options
+          end
+        end
+      end
+      
+      it 'should resolve the options as expected' do
+        execute( 'option_resolver::task_with_options', :scalar_arg_option => 'bla',
+                                                       :lambda_arg_option => lambda { |_opts| 'blubb' } )
+
+        @resolved_options.should == { :scalar_namespace_option => 'foo',
+                                      :lambda_namespace_option => 'bar',
+                                      :scalar_task_option      => 'baz',
+                                      :lambda_task_option      => 'quux',
+                                      :scalar_arg_option       => 'bla',
+                                      :lambda_arg_option       => 'blubb' }
+                                      
+      end
+    end
   end
 end
