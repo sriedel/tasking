@@ -27,7 +27,7 @@ module Tasker
     def self.find_task( full_name )
       namespace_name, _, task_name = full_name.rpartition( '::' )
 
-      Tasker::Namespace.find_task_in_namespace( namespace_name, task_name )
+      self.find_task_in_namespace( namespace_name, task_name )
     end
 
     def self.find_or_create( name, options = {} )
