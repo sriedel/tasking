@@ -1,5 +1,5 @@
 === Running tasks from the command line
-tasker <task_name>
+tasking <task_name>
 
 === The DSL
 The DSL has the following commands:

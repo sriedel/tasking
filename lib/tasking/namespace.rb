@@ -1,4 +1,4 @@
-module Tasker
+module Tasking
   class Namespace
     attr_reader :name, :options
 

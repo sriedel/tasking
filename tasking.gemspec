@@ -4,7 +4,7 @@ Gem::Specification.new do |s|
   s.files = %w[ README.rdoc ] +
              Dir.glob( "bin/**/*" ) +
              Dir.glob( "lib/**/*" )
-  s.name = "tasker"
+  s.name = "tasking"
   s.bindir = "bin"
   s.executables = []
 
@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.require_paths = [ "lib" ]
   s.summary = "A lightweight task runner DSL"
   s.email = "sr@gimp.org"
-  s.homepage = "https://github.com/sriedel/tasker"
+  s.homepage = "https://github.com/sriedel/tasking"
   s.description = "A lightweight DSL for task definition and execution"
   s.licenses = [ "GPL-2.0" ]
 

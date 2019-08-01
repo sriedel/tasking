@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
-require 'lib/tasker'
+require 'lib/tasking'
 
-include Tasker
+include Tasking
 task_name = ARGV[0]
 
 load 'Taskfile'

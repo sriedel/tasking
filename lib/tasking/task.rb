@@ -1,4 +1,4 @@
-module Tasker
+module Tasking
   class Task
     attr_reader :name, :options, :block, :before_filters, :after_filters,
                 :parent_namespace
@@ -43,7 +43,7 @@ module Tasker
 
     def task_lookup( name )
       name.slice!( 0, 2 ) if name.start_with?( '::' ) 
-      Tasker::Namespace.find_task( name )
+      Tasking::Namespace.find_task( name )
     end
   end
 end

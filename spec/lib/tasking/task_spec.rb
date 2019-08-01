@@ -1,14 +1,14 @@
 require 'spec_helper'
 
-describe Tasker::Task do
+describe Tasking::Task do
   describe "a new task" do
     let( :task_name ) { "dummy_task" }
-    let( :parent_namespace ) { double( Tasker::Namespace ) }
+    let( :parent_namespace ) { double( Tasking::Namespace ) }
     let( :task_options ) { { :foo => :bar } }
     let( :task_block ) { Proc.new { } }
 
     context "with only a name" do
-      subject { Tasker::Task.new( task_name, parent_namespace ) }
+      subject { Tasking::Task.new( task_name, parent_namespace ) }
 
       its( :name ) { should == task_name }
       its( :options ) { should == {} }
@@ -17,7 +17,7 @@ describe Tasker::Task do
     end
 
     context "with all parameters" do
-      subject { Tasker::Task.new( task_name, parent_namespace, task_options, &task_block ) }
+      subject { Tasking::Task.new( task_name, parent_namespace, task_options, &task_block ) }
 
       its( :name ) { should == task_name }
       its( :options ) { should == task_options }

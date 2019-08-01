@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-module Tasker
+module Tasking
   def task( name, options = {}, &block )
     abort( "Tasks with empty names are not allowed" ) if name.to_s.empty?
 
@@ -11,8 +11,8 @@ module Tasker
 
     build_namespace_hierarchy( namespace_name )
 
-    parent_namespace = Tasker::Namespace.find_namespace( namespace_name )
-    task = Tasker::Task.new( task_name, parent_namespace, options, &block )
+    parent_namespace = Tasking::Namespace.find_namespace( namespace_name )
+    task = Tasking::Task.new( task_name, parent_namespace, options, &block )
     parent_namespace.register_task( task )
   end
 
@@ -24,7 +24,7 @@ module Tasker
     parent_namespace_names, _ = split_task_from_namespace( full_name )
     build_namespace_hierarchy( parent_namespace_names )
 
-    next_namespace = Tasker::Namespace.find_or_create( full_name, options )
+    next_namespace = Tasking::Namespace.find_or_create( full_name, options )
     @__parent_namespace.push( next_namespace )
     next_namespace.execute( options, &block )
     @__parent_namespace.pop
@@ -35,16 +35,16 @@ module Tasker
   end
 
   def late_before( task_name, parent_namespace_name, *before_task_names )
-    task = Tasker::Namespace.find_task_in_namespace( parent_namespace_name, task_name ) ||
-           Tasker::Namespace.find_task( task_name ) 
+    task = Tasking::Namespace.find_task_in_namespace( parent_namespace_name, task_name ) ||
+           Tasking::Namespace.find_task( task_name ) 
     abort( "Unknown task '#{task_name}' in before filter" ) unless task
 
     task.add_before_filters( *before_task_names )
   end
 
   def late_after( task_name, parent_namespace_name, *after_task_names )
-    task = Tasker::Namespace.find_task_in_namespace( parent_namespace_name, task_name ) ||
-           Tasker::Namespace.find_task( task_name ) 
+    task = Tasking::Namespace.find_task_in_namespace( parent_namespace_name, task_name ) ||
+           Tasking::Namespace.find_task( task_name ) 
     abort( "Unknown task '#{task_name}' in after filter" ) unless task
 
     task.add_after_filters( *after_task_names )
@@ -102,15 +102,15 @@ module Tasker
 
     if name.start_with?( '::' ) 
       name.slice!( 0, 2 )
-      return Tasker::Namespace.find_task( name )
+      return Tasking::Namespace.find_task( name )
     end
 
     if @__parent_namespace.last 
       full_name = "#{@__parent_namespace.last.name}::#{name}"
-      task = Tasker::Namespace.find_task( full_name )
+      task = Tasking::Namespace.find_task( full_name )
     end
 
-    task || Tasker::Namespace.find_task( name )
+    task || Tasking::Namespace.find_task( name )
   end
 
   def walk_namespace_tree_to( namespace_name, type = :namespace, &block )
@@ -133,7 +133,7 @@ module Tasker
     final_options = {}
 
     walk_namespace_tree_to( full_task_name, :task ) do |ns_name|
-      namespace = Tasker::Namespace.find_namespace( ns_name )
+      namespace = Tasking::Namespace.find_namespace( ns_name )
       final_options.merge!( namespace.options )
     end
 
@@ -148,7 +148,7 @@ module Tasker
 
   def build_namespace_hierarchy( full_name ) 
     walk_namespace_tree_to( full_name ) do |ns_name|
-      Tasker::Namespace.find_or_create( ns_name ) 
+      Tasking::Namespace.find_or_create( ns_name ) 
     end
   end
 
@@ -159,5 +159,5 @@ module Tasker
   end
 end
 
-require_relative 'tasker/namespace'
-require_relative 'tasker/task'
+require_relative 'tasking/namespace'
+require_relative 'tasking/task'

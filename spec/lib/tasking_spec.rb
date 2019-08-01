@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe Tasker do
-  include Tasker
+describe Tasking do
+  include Tasking
 
   before( :each ) do
-    Tasker::Namespace.class_eval { @namespaces.clear if @namespaces }
+    Tasking::Namespace.class_eval { @namespaces.clear if @namespaces }
   end
 
   describe "#before" do
@@ -324,7 +324,7 @@ describe Tasker do
       end
 
       it "should get merged with the existing options" do
-        ns = Tasker::Namespace.find_namespace( "outer" )
+        ns = Tasking::Namespace.find_namespace( "outer" )
         ns.options.should == { :foo => :bar }
       end
     end
@@ -339,12 +339,12 @@ describe Tasker do
       end
 
       it "should get merged with the options of the inner namespace" do
-        ns = Tasker::Namespace.find_namespace( "outer::inner" )
+        ns = Tasking::Namespace.find_namespace( "outer::inner" )
         ns.options.should == { :foo => :bar }
       end
 
       it "should not change the options of the outer namespace" do
-        ns = Tasker::Namespace.find_namespace( "outer" )
+        ns = Tasking::Namespace.find_namespace( "outer" )
         ns.options.should == {}
       end
     end
@@ -357,12 +357,12 @@ describe Tasker do
       end
 
       it "should get merged with the options of the inner namespace" do
-        ns = Tasker::Namespace.find_namespace( "outer::inner" )
+        ns = Tasking::Namespace.find_namespace( "outer::inner" )
         ns.options.should == { :foo => :bar }
       end
 
       it "should not change the options of the outer namespace" do
-        ns = Tasker::Namespace.find_namespace( "outer" )
+        ns = Tasking::Namespace.find_namespace( "outer" )
         ns.options.should == {}
       end
     end
@@ -379,7 +379,7 @@ describe Tasker do
       end
 
       it "should get merged with the existing options" do
-        ns = Tasker::Namespace.find_namespace( "outer" )
+        ns = Tasking::Namespace.find_namespace( "outer" )
         ns.options.should == { :foo => :baz, :baz => :quux, :bla => :blubb }
       end
     end
@@ -406,7 +406,7 @@ describe Tasker do
       end
 
       it "should add the task to the namespaces task list" do
-        registered_tasks = Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace" }.tasks
+        registered_tasks = Tasking::Namespace.all.detect { |ns| ns.name == "outer_namespace" }.tasks
         registered_tasks.size.should == 1
         registered_tasks.first.name.should == task_name
       end
@@ -414,14 +414,14 @@ describe Tasker do
 
     shared_examples_for( :a_task_in_a_nested_namespace ) do
       it "should add the task to the inner namespaces task list" do
-        registered_tasks = Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace::inner_namespace" }.tasks
+        registered_tasks = Tasking::Namespace.all.detect { |ns| ns.name == "outer_namespace::inner_namespace" }.tasks
         registered_tasks.size.should == 1
         registered_tasks.first.name.should == task_name
         registered_tasks.first.parent_namespace.name.should == "outer_namespace::inner_namespace" 
       end
 
       it "should not add the task to the outer namespace task list" do
-        registered_tasks = Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace" }.tasks
+        registered_tasks = Tasking::Namespace.all.detect { |ns| ns.name == "outer_namespace" }.tasks
         registered_tasks.should == []
       end
     end
@@ -451,8 +451,8 @@ describe Tasker do
       end
 
       it "should create the outer namespaces" do 
-        Tasker::Namespace.all.map(&:name).should include( "outer_namespace" )
-        Tasker::Namespace.all.map(&:name).should include( "outer_namespace::inner_namespace" )
+        Tasking::Namespace.all.map(&:name).should include( "outer_namespace" )
+        Tasking::Namespace.all.map(&:name).should include( "outer_namespace::inner_namespace" )
       end
       it_should_behave_like( :a_task_in_a_nested_namespace )
     end
@@ -465,8 +465,8 @@ describe Tasker do
       end
 
       it "should create the outer namespaces" do 
-        Tasker::Namespace.all.map(&:name).should include( "outer_namespace" )
-        Tasker::Namespace.all.map(&:name).should include( "outer_namespace::inner_namespace" )
+        Tasking::Namespace.all.map(&:name).should include( "outer_namespace" )
+        Tasking::Namespace.all.map(&:name).should include( "outer_namespace::inner_namespace" )
       end
 
       it_should_behave_like( :a_task_in_a_nested_namespace )
@@ -480,7 +480,7 @@ describe Tasker do
         namespace( "namespace" ) { task task_name, old_options }
         namespace( "namespace" ) { task task_name, new_options }
 
-        ns = Tasker::Namespace.find_namespace( "namespace" )
+        ns = Tasking::Namespace.find_namespace( "namespace" )
         ns.tasks.select { |t| t.name == task_name }.size.should == 1
         ns.tasks.detect { |t| t.name == task_name }.options.should == new_options  
       end
@@ -502,7 +502,7 @@ describe Tasker do
         namespace( namespace_name ) { task "foo" }
         namespace( namespace_name ) { task "bar" }
 
-        ns = Tasker::Namespace.find_namespace( namespace_name )
+        ns = Tasking::Namespace.find_namespace( namespace_name )
         ns.tasks.map(&:name).should include( "foo" )
         ns.tasks.map(&:name).should include( "bar" )
       end
@@ -511,52 +511,52 @@ describe Tasker do
         namespace( namespace_name, :foo => :bar, :baz => :quux )
         namespace( namespace_name, :foo => :baz, :bla => :blubb )
 
-        ns = Tasker::Namespace.find_namespace( namespace_name )
+        ns = Tasking::Namespace.find_namespace( namespace_name )
         ns.options.should == { :foo =>:baz, :baz => :quux, :bla => :blubb }
       end
     end
 
     context "a top level namespace" do
       it "should add the namespace to Namespace.all" do
-        expect { namespace( namespace_name, namespace_options, &namespace_block ) }.to change { Tasker::Namespace.all.size }.by(1)
-        Tasker::Namespace.all.last.name.should == namespace_name
-        Tasker::Namespace.all.last.parent_namespace.should be_nil
+        expect { namespace( namespace_name, namespace_options, &namespace_block ) }.to change { Tasking::Namespace.all.size }.by(1)
+        Tasking::Namespace.all.last.name.should == namespace_name
+        Tasking::Namespace.all.last.parent_namespace.should be_nil
       end
     end
 
     context "nested namespaces" do
       shared_examples_for( :a_nested_namespace ) do
         it "should have the outer namespace" do
-          ns = Tasker::Namespace.find_namespace( "second_namespace" )
-          ns.should be_a( Tasker::Namespace )
+          ns = Tasking::Namespace.find_namespace( "second_namespace" )
+          ns.should be_a( Tasking::Namespace )
           ns.parent_namespace.should be_nil
         end
 
         it "should have the outer namespace" do
-          ns = Tasker::Namespace.find_namespace( "outer_namespace" )
-          ns.should be_a( Tasker::Namespace )
+          ns = Tasking::Namespace.find_namespace( "outer_namespace" )
+          ns.should be_a( Tasking::Namespace )
           ns.options.should == {}
           ns.parent_namespace.should be_nil
         end
           
         it "should have the middle namespace" do
-          ns = Tasker::Namespace.find_namespace( "outer_namespace::middle_namespace" )
-          ns.should be_a( Tasker::Namespace )
+          ns = Tasking::Namespace.find_namespace( "outer_namespace::middle_namespace" )
+          ns.should be_a( Tasking::Namespace )
           ns.options.should == {}
-          ns.parent_namespace.should be_a( Tasker::Namespace )
+          ns.parent_namespace.should be_a( Tasking::Namespace )
           ns.parent_namespace.name.should == "outer_namespace"
         end
           
         it "should have the inner namespace" do
-          ns = Tasker::Namespace.find_namespace( "outer_namespace::middle_namespace::inner_namespace" )
-          ns.should be_a( Tasker::Namespace )
+          ns = Tasking::Namespace.find_namespace( "outer_namespace::middle_namespace::inner_namespace" )
+          ns.should be_a( Tasking::Namespace )
           ns.options.should == namespace_options
-          ns.parent_namespace.should be_a( Tasker::Namespace )
+          ns.parent_namespace.should be_a( Tasking::Namespace )
           ns.parent_namespace.name.should == "outer_namespace::middle_namespace"
         end
 
         it "should have only the defined namespaces" do
-          ( Tasker::Namespace.all.map(&:name) - [ "second_namespace",
+          ( Tasking::Namespace.all.map(&:name) - [ "second_namespace",
                                                   "outer_namespace",
                                                   "outer_namespace::middle_namespace",
                                                   "outer_namespace::middle_namespace::inner_namespace" ] ).should == []
@@ -587,12 +587,12 @@ describe Tasker do
 
         it "should not re-create already existing namespaces" do
           namespace "outer_namespace::inner_namespace"
-          outer_namespace = Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace" }
+          outer_namespace = Tasking::Namespace.all.detect { |ns| ns.name == "outer_namespace" }
           
           namespace "outer_namespace"
-          outer_namespace2 = Tasker::Namespace.all.detect { |ns| ns.name == "outer_namespace" }
+          outer_namespace2 = Tasking::Namespace.all.detect { |ns| ns.name == "outer_namespace" }
 
-          Tasker::Namespace.all.select { |ns| ns.name == "outer_namespace" }.size.should == 1
+          Tasking::Namespace.all.select { |ns| ns.name == "outer_namespace" }.size.should == 1
           outer_namespace.should === outer_namespace2
         end
       end
