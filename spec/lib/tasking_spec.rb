@@ -694,7 +694,7 @@ describe Tasking do
                                      :lambda_namespace_option => lambda { |_opts| 'bar' } do
           task "task_with_options", :scalar_task_option => 'baz',
                                     :lambda_task_option => lambda { |_opts| 'quux' } do |resolved_options|
-            @resolved_options = resolved_options
+            @resolved_options = resolved_options.materialized_hash
           end
         end
       end

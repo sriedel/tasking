@@ -130,7 +130,7 @@ module Tasking
   end
 
   def gather_options_for( full_task_name, task )
-    final_options = {}
+    final_options = Tasking::Options.new({})
 
     walk_namespace_tree_to( full_task_name, :task ) do |ns_name|
       namespace = Tasking::Namespace.find_namespace( ns_name )
@@ -159,5 +159,6 @@ module Tasking
   end
 end
 
+require_relative 'tasking/options'
 require_relative 'tasking/namespace'
 require_relative 'tasking/task'

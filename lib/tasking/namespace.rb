@@ -37,7 +37,7 @@ module Tasking
     def initialize( name, options = {} )
       @tasks = {}
       @name = name
-      @options = options
+      @options = Options.build( options )
       
       self.class.add_namespace( self )
     end
@@ -54,7 +54,7 @@ module Tasking
 
     def execute( options = {}, &block )
       @options.merge!( options )
-      block.call if block
+      block&.call
     end
 
     def merge_options( options )
