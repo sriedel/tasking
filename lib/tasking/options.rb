@@ -3,7 +3,7 @@ module Tasking
     attr_reader :options_hash
 
     def self.build( options )
-      return options if options.is_a?(Tasking::Options)
+      return options if options.is_a?( self )
 
       new( options )
     end
@@ -13,7 +13,7 @@ module Tasking
     end
 
     def [](key)
-      resolve_value(options_hash[key])
+      resolve_value( options_hash[key] )
     end
 
     def merge(other)
@@ -38,7 +38,7 @@ module Tasking
     private
 
     def resolve_value( value )
-      value.respond_to?( :call ) ? value.call(self) : value
+      value.respond_to?( :call ) ? value.call( self ) : value
     end
 
     def extract_options_hash(other)
