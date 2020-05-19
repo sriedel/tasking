@@ -692,6 +692,7 @@ describe Tasking do
 
         namespace "option_resolver", :scalar_namespace_option => 'foo', 
                                      :lambda_namespace_option => lambda { |_opts| 'bar' } do
+          options :namespace_lambda_option_with_lambda_reference => lambda { |opts| "option-#{opts[:lambda_namespace_option]}" }
           task "task_with_options", :scalar_task_option => 'baz',
                                     :lambda_task_option => lambda { |_opts| 'quux' } do |resolved_options|
             @resolved_options = resolved_options.materialized_hash
@@ -703,12 +704,13 @@ describe Tasking do
         execute( 'option_resolver::task_with_options', :scalar_arg_option => 'bla',
                                                        :lambda_arg_option => lambda { |_opts| 'blubb' } )
 
-        @resolved_options.should == { :scalar_namespace_option => 'foo',
-                                      :lambda_namespace_option => 'bar',
-                                      :scalar_task_option      => 'baz',
-                                      :lambda_task_option      => 'quux',
-                                      :scalar_arg_option       => 'bla',
-                                      :lambda_arg_option       => 'blubb' }
+        @resolved_options.should == { :scalar_namespace_option                       => 'foo',
+                                      :lambda_namespace_option                       => 'bar',
+                                      :namespace_lambda_option_with_lambda_reference => 'option-bar',
+                                      :scalar_task_option                            => 'baz',
+                                      :lambda_task_option                            => 'quux',
+                                      :scalar_arg_option                             => 'bla',
+                                      :lambda_arg_option                             => 'blubb' }
                                       
       end
     end
