@@ -191,54 +191,146 @@ describe Tasking do
   describe "#execute" do
     context "the task options on execution" do
       before( :each ) do
-        namespace( "outer", :outer_not_overridden              => :outer,
-                            :outer_overridden_by_outer_options => :outer,
-                            :outer_overridden_by_inner         => :outer,
-                            :outer_overridden_by_inner_options => :outer,
-                            :outer_overridden_by_task          => :outer,
-                            :outer_overridden_by_execute       => :outer ) do
+        namespace( "outer", :other_outer_overridden_by_calling_outer_namespace         => :outer,
+                            :other_outer_options_overridden_by_calling_outer_namespace => :outer,
+                            :other_inner_overridden_by_calling_outer_namespace         => :outer,
+                            :other_inner_options_overridden_by_calling_outer_namespace => :outer,
+                            :other_task_overridden_by_calling_outer_namespace          => :outer,
+                            :outer_not_overridden                                      => :outer,
+                            :outer_overridden_by_outer_options                         => :outer,
+                            :outer_overridden_by_inner                                 => :outer,
+                            :outer_overridden_by_inner_options                         => :outer,
+                            :outer_overridden_by_task                                  => :outer,
+                            :outer_overridden_by_execute                               => :outer ) do
 
-          options :outer_overridden_by_outer_options         => :outer_options,
-                  :outer_options_not_overridden              => :outer_options,
-                  :outer_options_overridden_by_inner         => :outer_options,
-                  :outer_options_overridden_by_inner_options => :outer_options,
-                  :outer_options_overridden_by_task          => :outer_options,
-                  :outer_options_overridden_by_execute       => :outer_options
+          options :other_outer_overridden_by_calling_outer_options         => :outer_options,
+                  :other_outer_options_overridden_by_calling_outer_options => :outer_options,
+                  :other_inner_overridden_by_calling_outer_options         => :outer_options,
+                  :other_inner_options_overridden_by_calling_outer_options => :outer_options,
+                  :other_task_overridden_by_calling_outer_options          => :outer_options,
+                  :outer_overridden_by_outer_options                       => :outer_options,
+                  :outer_options_not_overridden                            => :outer_options,
+                  :outer_options_overridden_by_inner                       => :outer_options,
+                  :outer_options_overridden_by_inner_options               => :outer_options,
+                  :outer_options_overridden_by_task                        => :outer_options,
+                  :outer_options_overridden_by_execute                     => :outer_options
 
-          namespace( "inner", :outer_overridden_by_inner         => :inner,
-                              :outer_options_overridden_by_inner => :inner,
-                              :inner_not_overridden              => :inner,
-                              :inner_overridden_by_task          => :inner,
-                              :inner_overridden_by_inner_options => :inner,
-                              :inner_overridden_by_execute       => :inner ) do
+          namespace( "inner", :other_outer_overridden_by_calling_inner_namespace         => :inner,
+                              :other_outer_options_overridden_by_calling_inner_namespace => :inner,
+                              :other_inner_overridden_by_calling_inner_namespace         => :inner,
+                              :other_inner_options_overridden_by_calling_inner_namespace => :inner,
+                              :other_task_overridden_by_calling_inner_namespace          => :inner,
+                              :outer_overridden_by_inner                                 => :inner,
+                              :outer_options_overridden_by_inner                         => :inner,
+                              :inner_not_overridden                                      => :inner,
+                              :inner_overridden_by_task                                  => :inner,
+                              :inner_overridden_by_inner_options                         => :inner,
+                              :inner_overridden_by_execute                               => :inner ) do
 
-            options :outer_overridden_by_inner_options         => :inner_options,
-                    :outer_options_overridden_by_inner_options => :inner_options,
-                    :inner_overridden_by_inner_options         => :inner_options,
-                    :inner_options_not_overridden              => :inner_options,
-                    :inner_options_overridden_by_task          => :inner_options,
-                    :inner_options_overridden_by_execute       => :inner_options
+            options :other_outer_overridden_by_calling_inner_options         => :inner_options,
+                    :other_outer_options_overridden_by_calling_inner_options => :inner_options,
+                    :other_inner_overridden_by_calling_inner_options         => :inner_options,
+                    :other_inner_options_overridden_by_calling_inner_options => :inner_options,
+                    :other_task_overridden_by_calling_inner_options          => :inner_options,
+                    :outer_overridden_by_inner_options                       => :inner_options,
+                    :outer_options_overridden_by_inner_options               => :inner_options,
+                    :inner_overridden_by_inner_options                       => :inner_options,
+                    :inner_options_not_overridden                            => :inner_options,
+                    :inner_options_overridden_by_task                        => :inner_options,
+                    :inner_options_overridden_by_execute                     => :inner_options
 
-            task( "my_task", :outer_overridden_by_task         => :task,
-                             :outer_options_overridden_by_task => :task,
-                             :inner_overridden_by_task         => :task,
-                             :inner_options_overridden_by_task => :task,
-                             :task_not_overridden              => :task,
-                             :task_overridden_by_execute       => :task ) do |options|
+            task( "my_task", :other_outer_overridden_by_calling_task         => :task,
+                             :other_outer_options_overridden_by_calling_task => :task,
+                             :other_inner_overridden_by_calling_task         => :task,
+                             :other_inner_options_overridden_by_calling_task => :task,
+                             :other_task_overridden_by_calling_task          => :task,
+                             :outer_overridden_by_task                       => :task,
+                             :outer_options_overridden_by_task               => :task,
+                             :inner_overridden_by_task                       => :task,
+                             :inner_options_overridden_by_task               => :task,
+                             :task_not_overridden                            => :task,
+                             :task_overridden_by_execute                     => :task ) do |options|
               @set_options = options
+              execute("other::inner::other_task", :other_outer_overridden_by_calling_execute         => :calling_execute,
+                                                  :other_outer_options_overridden_by_calling_execute => :calling_execute,
+                                                  :other_inner_overridden_by_calling_execute         => :calling_execute,
+                                                  :other_inner_options_overridden_by_calling_execute => :calling_execute,
+                                                  :other_task_overridden_by_calling_execute          => :calling_execute)
             end
           end
         end
-        execute( "outer::inner::my_task", :outer_overridden_by_execute => :exe,
+        namespace("other", :other_outer_not_overridden                        => :other_outer,
+                           :other_outer_overridden_by_calling_outer_namespace => :other_outer,
+                           :other_outer_overridden_by_calling_outer_options   => :other_outer,
+                           :other_outer_overridden_by_calling_inner_namespace => :other_outer,
+                           :other_outer_overridden_by_calling_inner_options   => :other_outer,
+                           :other_outer_overridden_by_calling_task            => :other_outer,
+                           :other_outer_overridden_by_calling_execute         => :other_outer,
+                           :other_outer_overridden_by_outer_options           => :other_outer,
+                           :other_outer_overridden_by_inner_namespace         => :other_outer,
+                           :other_outer_overridden_by_inner_options           => :other_outer,
+                           :other_outer_overridden_by_task                    => :other_outer) do
+          options :other_outer_overridden_by_outer_options                   => :other_outer_options,
+                  :other_outer_options_not_overridden                        => :other_outer_options,
+                  :other_outer_options_overridden_by_calling_outer_namespace => :other_outer_options,
+                  :other_outer_options_overridden_by_calling_outer_options   => :other_outer_options,
+                  :other_outer_options_overridden_by_calling_inner_namespace => :other_outer_options,
+                  :other_outer_options_overridden_by_calling_inner_options   => :other_outer_options,
+                  :other_outer_options_overridden_by_calling_task            => :other_outer_options,
+                  :other_outer_options_overridden_by_calling_execute         => :other_outer_options,
+                  :other_outer_options_overridden_by_inner_namespace         => :other_outer_options,
+                  :other_outer_options_overridden_by_inner_options           => :other_outer_options,
+                  :other_outer_options_overridden_by_task                    => :other_outer_options
+
+          namespace("inner", :other_outer_overridden_by_inner_namespace         => :other_inner,
+                             :other_outer_options_overridden_by_inner_namespace => :other_inner,
+                             :other_inner_not_overridden                        => :other_inner,
+                             :other_inner_overridden_by_calling_outer_namespace => :other_inner,
+                             :other_inner_overridden_by_calling_outer_options   => :other_inner,
+                             :other_inner_overridden_by_calling_inner_namespace => :other_inner,
+                             :other_inner_overridden_by_calling_inner_options   => :other_inner,
+                             :other_inner_overridden_by_calling_task            => :other_inner,
+                             :other_inner_overridden_by_calling_execute         => :other_inner,
+                             :other_inner_overridden_by_inner_options           => :other_inner,
+                             :other_inner_overridden_by_task                    => :other_inner) do
+            options :other_outer_overridden_by_inner_options                   => :other_inner_options,
+                    :other_outer_options_overridden_by_inner_options           => :other_inner_options,
+                    :other_inner_overridden_by_inner_options                   => :other_inner_options,
+                    :other_inner_options_not_overridden                        => :other_inner_options,
+                    :other_inner_options_overridden_by_calling_outer_namespace => :other_inner_options,
+                    :other_inner_options_overridden_by_calling_outer_options   => :other_inner_options,
+                    :other_inner_options_overridden_by_calling_inner_namespace => :other_inner_options,
+                    :other_inner_options_overridden_by_calling_inner_options   => :other_inner_options,
+                    :other_inner_options_overridden_by_calling_task            => :other_inner_options,
+                    :other_inner_options_overridden_by_calling_execute         => :other_inner_options,
+                    :other_inner_options_overridden_by_task                    => :other_inner_options
+
+            task("other_task", :other_outer_overridden_by_task                   => :other_task,
+                               :other_outer_options_overridden_by_task           => :other_task,
+                               :other_inner_overridden_by_task                   => :other_task,
+                               :other_inner_options_overridden_by_task           => :other_task,
+                               :other_task_not_overridden                        => :other_task,
+                               :other_task_overridden_by_calling_outer_namespace => :other_task,
+                               :other_task_overridden_by_calling_outer_options   => :other_task,
+                               :other_task_overridden_by_calling_inner_namespace => :other_task,
+                               :other_task_overridden_by_calling_inner_options   => :other_task,
+                               :other_task_overridden_by_calling_task            => :other_task,
+                               :other_task_overridden_by_calling_execute         => :other_task) do |options|
+              @other_options = options
+            end
+          end
+        end
+                     
+        execute( "outer::inner::my_task", :outer_overridden_by_execute         => :exe,
                                           :outer_options_overridden_by_execute => :exe,
-                                          :inner_overridden_by_execute => :exe,
+                                          :inner_overridden_by_execute         => :exe,
                                           :inner_options_overridden_by_execute => :exe,
-                                          :task_overridden_by_execute  => :exe,
-                                          :execute_not_overridden      => :exe )
+                                          :task_overridden_by_execute          => :exe,
+                                          :execute_not_overridden              => :exe )
       end
 
       it "should get all options with the proper override sequence" do
-        @set_options.should == { 
+        @set_options.materialized_hash.should include({ 
           :outer_not_overridden                      => :outer,
           :outer_overridden_by_outer_options         => :outer_options,
           :outer_overridden_by_inner                 => :inner,
@@ -259,7 +351,79 @@ describe Tasking do
           :inner_options_overridden_by_execute       => :exe,
           :task_not_overridden                       => :task,
           :task_overridden_by_execute                => :exe,
-          :execute_not_overridden                    => :exe }
+          :execute_not_overridden                    => :exe })
+      end
+
+      xit "should pass options on to tasks in other namespace hierarchy" do
+        # prepared for later implementation
+        @other_options.materialized_hash.sort.should == {
+          :outer_not_overridden                                      => :outer,
+          :outer_overridden_by_outer_options                         => :outer_options,
+          :outer_overridden_by_inner                                 => :inner,
+          :outer_overridden_by_inner_options                         => :inner_options,
+          :outer_overridden_by_task                                  => :task,
+          :outer_overridden_by_execute                               => :exe,
+          :outer_options_not_overridden                              => :outer_options,
+          :outer_options_overridden_by_inner                         => :inner,
+          :outer_options_overridden_by_inner_options                 => :inner_options,
+          :outer_options_overridden_by_task                          => :task,
+          :outer_options_overridden_by_execute                       => :exe,
+          :inner_not_overridden                                      => :inner,
+          :inner_overridden_by_inner_options                         => :inner_options,
+          :inner_overridden_by_task                                  => :task,
+          :inner_overridden_by_execute                               => :exe,
+          :inner_options_not_overridden                              => :inner_options,
+          :inner_options_overridden_by_task                          => :task,
+          :inner_options_overridden_by_execute                       => :exe,
+          :task_not_overridden                                       => :task,
+          :task_overridden_by_execute                                => :exe,
+          :execute_not_overridden                                    => :exe,
+          :other_outer_not_overridden                                => :other_outer,
+          :other_outer_overridden_by_outer_options                   => :other_outer_options,
+          :other_outer_overridden_by_inner_namespace                 => :other_inner,
+          :other_outer_overridden_by_inner_options                   => :other_inner_options,
+          :other_outer_overridden_by_task                            => :other_task,
+          :other_outer_overridden_by_calling_outer_namespace         => :outer,
+          :other_outer_overridden_by_calling_outer_options           => :outer_options,
+          :other_outer_overridden_by_calling_inner_namespace         => :inner,
+          :other_outer_overridden_by_calling_inner_options           => :inner_options,
+          :other_outer_overridden_by_calling_task                    => :task,
+          :other_outer_overridden_by_calling_execute                 => :calling_execute,
+          :other_outer_options_not_overridden                        => :other_outer_options,
+          :other_outer_options_overridden_by_inner_namespace         => :other_inner,
+          :other_outer_options_overridden_by_inner_options           => :other_inner_options,
+          :other_outer_options_overridden_by_task                    => :other_task,
+          :other_outer_options_overridden_by_calling_outer_namespace => :outer,
+          :other_outer_options_overridden_by_calling_outer_options   => :outer_options,
+          :other_outer_options_overridden_by_calling_inner_namespace => :inner,
+          :other_outer_options_overridden_by_calling_inner_options   => :inner_options,
+          :other_outer_options_overridden_by_calling_task            => :task,
+          :other_outer_options_overridden_by_calling_execute         => :calling_execute,
+          :other_inner_not_overridden                                => :other_inner,
+          :other_inner_overridden_by_inner_options                   => :other_inner_options,
+          :other_inner_overridden_by_task                            => :other_task,
+          :other_inner_overridden_by_calling_outer_namespace         => :outer,
+          :other_inner_overridden_by_calling_outer_options           => :outer_options,
+          :other_inner_overridden_by_calling_inner_namespace         => :inner,
+          :other_inner_overridden_by_calling_inner_options           => :inner_options,
+          :other_inner_overridden_by_calling_task                    => :task,
+          :other_inner_overridden_by_calling_execute                 => :calling_execute,
+          :other_inner_options_not_overridden                        => :other_inner_options,
+          :other_inner_options_overridden_by_task                    => :other_task,
+          :other_inner_options_overridden_by_calling_outer_namespace => :outer,
+          :other_inner_options_overridden_by_calling_outer_options   => :outer_options,
+          :other_inner_options_overridden_by_calling_inner_namespace => :inner,
+          :other_inner_options_overridden_by_calling_inner_options   => :inner_options,
+          :other_inner_options_overridden_by_calling_task            => :task,
+          :other_inner_options_overridden_by_calling_execute         => :calling_execute,
+          :other_task_not_overridden                                 => :other_task,
+          :other_task_overridden_by_calling_outer_namespace          => :outer,
+          :other_task_overridden_by_calling_outer_options            => :outer_options,
+          :other_task_overridden_by_calling_inner_namespace          => :inner,
+          :other_task_overridden_by_calling_inner_options            => :inner_options,
+          :other_task_overridden_by_calling_task                     => :task,
+          :other_task_overridden_by_calling_execute                  => :calling_execute,
+        }.sort
       end
     end
 
