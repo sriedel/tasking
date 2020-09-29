@@ -78,6 +78,32 @@ describe Tasking do
         execute( "outer::my_task" )
         @executed.should == [ "outer::first_task", "outer::my_task" ]
       end
+
+      context "access to options" do
+        before(:each) do
+          @before_options = []
+
+          namespace "bar" do
+            task "task" do
+              true
+            end
+            before "task", "foo::before"
+          end
+
+          namespace "foo" do
+            options :baz => :quux
+
+            task "before" do |opts|
+              @before_options = opts
+            end
+          end
+        end
+
+        it 'should have access to the namespaces options' do
+          execute( "bar::task" )
+          @before_options.should === { :baz => :quux }
+        end
+      end
     end
 
     context "the lookup" do
@@ -154,6 +180,31 @@ describe Tasking do
       it "should raise an error if a filter is unknown on execution" do
         after "foo::target", "foo::unknown"
         lambda { execute "foo::target" }.should raise_error
+      end
+    end
+    context "access to options" do
+      before(:each) do
+        @after_options = []
+
+        namespace "bar" do
+          task "task" do
+            true
+          end
+          after "task", "foo::before"
+        end
+
+        namespace "foo" do
+          options :baz => :quux
+
+          task "before" do |opts|
+            @after_options = opts
+          end
+        end
+      end
+
+      it 'should have access to the namespaces options' do
+        execute( "bar::task" )
+        @after_options.should === { :baz => :quux }
       end
     end
 
