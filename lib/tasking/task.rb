@@ -21,7 +21,10 @@ module Tasking
     end
 
     def execute( options = {} )
-      total_options = @options.merge( options )
+      total_options = Options.build(parent_namespace.options.dup)
+      total_options.merge!( @options )
+      total_options.merge!( options )
+
       execute_task_chain( before_filters, total_options, "Unknown before task '%s' for task '#{@name}'" )
       block&.call( total_options )
       execute_task_chain( after_filters, total_options, "Unknown after task '%s' for task '#{@name}'" )
