@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.version = "0.2.0"
+  s.version = "0.4.0"
   s.author = "Sven Riedel"
   s.files = %w[ README.rdoc ] +
              Dir.glob( "bin/**/*" ) +
